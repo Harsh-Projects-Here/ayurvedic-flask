@@ -1,29 +1,41 @@
 from flask import Flask
 import os
+
 from app.config import UPLOAD_FOLDER, ALLOWED_EXTENSIONS
+from app.database import init_db
+
 
 def create_app():
     app = Flask(
         __name__,
         template_folder="templates",
-        static_folder="static",
-        instance_relative_config=True
+        static_folder="static"
     )
 
-    # ❗ Secret key (must come from Railway env)
-    app.secret_key = os.environ.get("SECRET_KEY")
-    if not app.secret_key:
-        raise RuntimeError("SECRET_KEY is not set")
+    # -----------------------------
+    # SECRET KEY (MANDATORY)
+    # -----------------------------
+    secret = os.environ.get("SECRET_KEY")
+    if not secret:
+        raise RuntimeError("SECRET_KEY not set")
 
-    # Security basics
-    app.config["SESSION_COOKIE_HTTPONLY"] = True
-    app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+    app.secret_key = secret
 
-    # Upload config
+    # -----------------------------
+    # APP CONFIG
+    # -----------------------------
     app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
     app.config["ALLOWED_EXTENSIONS"] = ALLOWED_EXTENSIONS
 
-    # Blueprints
+    # -----------------------------
+    # INITIALIZE DATABASE (SAFE)
+    # -----------------------------
+    with app.app_context():
+        init_db()
+
+    # -----------------------------
+    # BLUEPRINTS
+    # -----------------------------
     from app.routes import main
     app.register_blueprint(main)
 
