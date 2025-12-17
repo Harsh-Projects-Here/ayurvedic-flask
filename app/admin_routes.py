@@ -64,16 +64,22 @@ def get_categories():
 # ORDER HELPERS (SQLITE)
 # -----------------------------
 def load_orders():
-    db = get_db()
+    conn = get_db()
+    if not conn:
+        return []
+
     try:
-        rows = db.execute("SELECT * FROM orders ORDER BY id DESC").fetchall()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM orders ORDER BY id DESC")
+        rows = cur.fetchall()
 
         orders = []
         for o in rows:
-            items = db.execute(
-                "SELECT name, price, quantity FROM order_items WHERE order_id = ?",
+            cur.execute(
+                "SELECT name, price, quantity FROM order_items WHERE order_id = %s",
                 (o["id"],)
-            ).fetchall()
+            )
+            items = cur.fetchall()
 
             orders.append({
                 **dict(o),
@@ -82,31 +88,37 @@ def load_orders():
 
         return orders
     finally:
-        db.close()
+        conn.close()
 
 
 def load_order(order_id):
-    db = get_db()
+    conn = get_db()
+    if not conn:
+        return None
+
     try:
-        order = db.execute(
-            "SELECT * FROM orders WHERE id = ?",
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT * FROM orders WHERE id = %s",
             (order_id,)
-        ).fetchone()
+        )
+        order = cur.fetchone()
 
         if not order:
             return None
 
-        items = db.execute(
-            "SELECT name, price, quantity FROM order_items WHERE order_id = ?",
+        cur.execute(
+            "SELECT name, price, quantity FROM order_items WHERE order_id = %s",
             (order_id,)
-        ).fetchall()
+        )
+        items = cur.fetchall()
 
         return {
             **dict(order),
             "items": [dict(i) for i in items]
         }
     finally:
-        db.close()
+        conn.close()
 
 
 # -----------------------------
@@ -193,15 +205,19 @@ def order_detail(order_id):
 @admin.route("/orders/delete/<int:order_id>", endpoint="delete_order")
 @admin_required
 def delete_order(order_id):
-    db = get_db()
-    try:
-        # delete order items first (foreign key safety)
-        db.execute("DELETE FROM order_items WHERE order_id = ?", (order_id,))
-        db.execute("DELETE FROM orders WHERE id = ?", (order_id,))
+    conn = get_db()
+    if not conn:
+        return redirect(url_for("admin.admin_orders"))
 
-        db.commit()
+    try:
+        cur = conn.cursor()
+        # delete order items first (foreign key safety)
+        cur.execute("DELETE FROM order_items WHERE order_id = %s", (order_id,))
+        cur.execute("DELETE FROM orders WHERE id = %s", (order_id,))
+
+        conn.commit()
     finally:
-        db.close()
+        conn.close()
 
     return redirect(url_for("admin.admin_orders"))
 
@@ -365,15 +381,19 @@ def update_order_status(order_id):
         print("INVALID STATUS BLOCKED")
         return redirect(url_for("admin.order_detail", order_id=order_id))
 
-    db = get_db()
+    conn = get_db()
+    if not conn:
+        return redirect(url_for("admin.order_detail", order_id=order_id))
+
     try:
-        db.execute(
-            "UPDATE orders SET status = ? WHERE id = ?",
+        cur = conn.cursor()
+        cur.execute(
+            "UPDATE orders SET status = %s WHERE id = %s",
             (status, order_id)
         )
-        db.commit()
+        conn.commit()
         print("STATUS UPDATED IN DB")
     finally:
-        db.close()
+        conn.close()
 
     return redirect(url_for("admin.order_detail", order_id=order_id))

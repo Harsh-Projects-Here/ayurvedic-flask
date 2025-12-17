@@ -1,34 +1,45 @@
-import sqlite3
 import os
-from app.config import DATABASE_PATH, DATA_DIR
+import psycopg2
+from psycopg2.extras import RealDictCursor
+
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 
 def get_db():
-    os.makedirs(DATA_DIR, exist_ok=True)
+    if not DATABASE_URL:
+        return None
 
-    conn = sqlite3.connect(
-        DATABASE_PATH,
-        check_same_thread=False
-    )
-    conn.row_factory = sqlite3.Row
-    return conn
+    try:
+        return psycopg2.connect(
+            DATABASE_URL,
+            cursor_factory=RealDictCursor
+        )
+    except Exception as e:
+        print("Database connection error:", e)
+        return None
 
 
 def init_db():
-    db = get_db()
-    cursor = db.cursor()
+    conn = get_db()
+    if not conn:
+        print("DB not available, skipping init")
+        return
 
-    cursor.executescript("""
+    cur = conn.cursor()
+
+    cur.execute("""
     CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         name TEXT NOT NULL,
         phone TEXT UNIQUE NOT NULL,
-        created_at TEXT
+        created_at TIMESTAMP
     );
+    """)
 
+    cur.execute("""
     CREATE TABLE IF NOT EXISTS orders (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER,
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id),
         name TEXT NOT NULL,
         phone TEXT NOT NULL,
         address TEXT NOT NULL,
@@ -37,22 +48,22 @@ def init_db():
         latitude TEXT,
         longitude TEXT,
         map_link TEXT,
-        total REAL NOT NULL,
+        total NUMERIC NOT NULL,
         status TEXT NOT NULL,
-        created_at TEXT,
-        FOREIGN KEY (user_id) REFERENCES users(id)
-    );
-
-    CREATE TABLE IF NOT EXISTS order_items (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        order_id INTEGER NOT NULL,
-        product_id INTEGER NOT NULL,
-        name TEXT NOT NULL,
-        price REAL NOT NULL,
-        quantity INTEGER NOT NULL,
-        FOREIGN KEY (order_id) REFERENCES orders(id)
+        created_at TIMESTAMP
     );
     """)
 
-    db.commit()
-    db.close()
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS order_items (
+        id SERIAL PRIMARY KEY,
+        order_id INTEGER REFERENCES orders(id),
+        product_id INTEGER NOT NULL,
+        name TEXT NOT NULL,
+        price NUMERIC NOT NULL,
+        quantity INTEGER NOT NULL
+    );
+    """)
+
+    conn.commit()
+    conn.close()

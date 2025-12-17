@@ -37,29 +37,32 @@ def login():
         if not phone:
             return render_template("login.html", error="Phone number required")
 
-        db = get_db()
+        conn = get_db()
+        if not conn:
+            return render_template("login.html", error="Service unavailable")
+
         try:
-            user = db.execute(
-                "SELECT * FROM users WHERE phone = ?", (phone,)
-            ).fetchone()
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM users WHERE phone = %s", (phone,))
+            user = cur.fetchone()
 
             # NEW USER → AUTO CREATE
             if not user:
-                db.execute(
-                    "INSERT INTO users (name, phone, created_at) VALUES (?, ?, ?)",
-                    (name or "Customer", phone, datetime.now().isoformat())
+                cur.execute(
+                    "INSERT INTO users (name, phone, created_at) VALUES (%s, %s, %s)",
+                    (name or "Customer", phone, datetime.now())
                 )
-                db.commit()
-                user = db.execute(
-                    "SELECT * FROM users WHERE phone = ?", (phone,)
-                ).fetchone()
+                conn.commit()
+
+                cur.execute("SELECT * FROM users WHERE phone = %s", (phone,))
+                user = cur.fetchone()
 
             session["user_id"] = user["id"]
             session["user_name"] = user["name"]
 
             return redirect(url_for("main.products"))
         finally:
-            db.close()
+            conn.close()
 
     return render_template("login.html")
 
@@ -82,16 +85,21 @@ def account():
 @main.route("/account/orders")
 @login_required
 def my_orders():
-    db = get_db()
+    conn = get_db()
+    if not conn:
+        return render_template("my_orders.html", orders=[])
+
     try:
-        orders = db.execute(
-            "SELECT id, total, status, created_at FROM orders WHERE user_id = ? ORDER BY id DESC",
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT id, total, status, created_at FROM orders WHERE user_id = %s ORDER BY id DESC",
             (session["user_id"],)
-        ).fetchall()
+        )
+        orders = cur.fetchall()
 
         return render_template("my_orders.html", orders=orders)
     finally:
-        db.close()
+        conn.close()
 
 
 # Account Update
@@ -105,18 +113,22 @@ def update_account():
     if not name or not phone:
         return redirect(url_for("main.account"))
 
-    db = get_db()
+    conn = get_db()
+    if not conn:
+        return redirect(url_for("main.account"))
+
     try:
-        db.execute(
-            "UPDATE users SET name = ?, phone = ? WHERE id = ?",
+        cur = conn.cursor()
+        cur.execute(
+            "UPDATE users SET name = %s, phone = %s WHERE id = %s",
             (name, phone, session["user_id"])
         )
-        db.commit()
+        conn.commit()
 
         session["user_name"] = name
         return redirect(url_for("main.account"))
     finally:
-        db.close()
+        conn.close()
 
 
 # -----------------------
@@ -282,15 +294,19 @@ def place_order():
                 return jsonify(success=False, message="Stock changed"), 400
             total += float(product["price"]) * item["quantity"]
 
-        db = get_db()
-        try:
-            cursor = db.cursor()
+        conn = get_db()
+        if not conn:
+            return jsonify(success=False, message="Service unavailable"), 503
 
-            cursor.execute("""
+        try:
+            cur = conn.cursor()
+
+            cur.execute("""
                 INSERT INTO orders
                 (user_id, name, phone, address, landmark, payment_method,
                  latitude, longitude, map_link, total, status, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                RETURNING id
             """, (
                 session["user_id"],
                 name,
@@ -303,19 +319,19 @@ def place_order():
                 map_link,
                 total,
                 "PENDING",
-                datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                datetime.now()
             ))
 
-            order_id = cursor.lastrowid
+            order_id = cur.fetchone()["id"]
 
             for item in cart:
                 product = next((p for p in products if p["id"] == item["id"]), None)
                 price = float(product["price"])
                 
-                cursor.execute("""
+                cur.execute("""
                     INSERT INTO order_items
                     (order_id, product_id, name, price, quantity)
-                    VALUES (?, ?, ?, ?, ?)
+                    VALUES (%s, %s, %s, %s, %s)
                 """, (
                     order_id,
                     item["id"],
@@ -324,7 +340,7 @@ def place_order():
                     item["quantity"]
                 ))
 
-            db.commit()
+            conn.commit()
 
             session["cart"] = []
 
@@ -343,7 +359,7 @@ def place_order():
                 }
             )
         finally:
-            db.close()
+            conn.close()
 
     except Exception as e:
         print("ORDER ERROR:", e)
