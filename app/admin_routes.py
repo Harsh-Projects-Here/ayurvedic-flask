@@ -289,10 +289,10 @@ def add_product():
             "rating": float(request.form.get("rating") or 0),
             "rating_count": int(request.form.get("rating_count") or 0),
             "delivery_days": int(request.form.get("delivery_days") or 0),
-            
             "description": request.form.get("description"),
             "stock": int(request.form.get("stock")),
             "category": request.form.get("category"),
+            "badges": [],
             "created_at": datetime.now().isoformat(),
             "images": images
         })
@@ -316,6 +316,13 @@ def edit_product(product_id):
         return "Product not found", 404
 
     if request.method == "POST":
+        raw_badges = request.form.get("badges", "").strip()
+
+        try:
+            badges = json.loads(raw_badges) if raw_badges else []
+        except json.JSONDecodeError:
+            badges = []
+
         product.update({
             "name": request.form.get("name"),
             "mrp": float(request.form.get("mrp")),
@@ -323,7 +330,7 @@ def edit_product(product_id):
             "rating": float(request.form.get("rating") or 0),
             "rating_count": int(request.form.get("rating_count") or 0),
             "delivery_days": int(request.form.get("delivery_days") or 0),
-            "badges": json.loads(request.form.get("badges", "[]")),
+            "badges": badges,
             "description": request.form.get("description"),
             "stock": int(request.form.get("stock")),
             "category": request.form.get("category"),

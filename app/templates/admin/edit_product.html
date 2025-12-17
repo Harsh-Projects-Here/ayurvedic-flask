@@ -567,7 +567,8 @@
 
     <script>
         // Initialize badges from existing product data
-        let badges = {{ product.badges | tojson | safe }} || [];
+        let badges = {{ (product.badges or []) | tojson | safe }};
+
         
         // Display existing badges on page load
         window.onload = function() {
