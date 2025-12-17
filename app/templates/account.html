@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+/* Mobile-first responsive design with professional styling */
+
+.account-container {
+  max-width: 540px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.account-container h2 {
+  margin: 0 0 28px 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1a202c;
+  letter-spacing: -0.025em;
+}
+
+.account-container label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #334155;
+  margin-top: 20px;
+  margin-bottom: 8px;
+  display: block;
+  letter-spacing: 0.01em;
+}
+
+.account-container label:first-of-type {
+  margin-top: 0;
+}
+
+.account-container input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1.5px solid #e2e8f0;
+  font-size: 0.9375rem;
+  color: #64748b;
+  background-color: #f8fafc;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+  cursor: not-allowed;
+}
+
+.account-container input:focus {
+  outline: none;
+  border-color: #cbd5e0;
+}
+
+/* Action Buttons Container */
+.account-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+/* Button Base Styles */
+.btn {
+  width: 100%;
+  padding: 13px 20px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.2s ease;
+  letter-spacing: 0.01em;
+  box-sizing: border-box;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+/* Button Variants */
+.btn-primary {
+  background: #10b981;
+  color: #ffffff;
+  box-shadow: 0 1px 2px rgba(16, 185, 129, 0.2);
+}
+
+.btn-primary:hover {
+  background: #059669;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+}
+
+.btn-secondary {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1.5px solid #e2e8f0;
+}
+
+.btn-secondary:hover {
+  background: #e2e8f0;
+  border-color: #cbd5e0;
+}
+
+.btn-danger {
+  background: #ef4444;
+  color: #ffffff;
+  box-shadow: 0 1px 2px rgba(239, 68, 68, 0.2);
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+}
+
+/* Shop More Button - styled separately as it's outside container */
+.account-container + .btn {
+  max-width: 540px;
+  margin: 20px auto;
+  display: block;
+  background: #ffffff;
+  color: #475569;
+  border: 1.5px solid #e2e8f0;
+  font-weight: 600;
+  padding: 13px 20px;
+}
+
+.account-container + .btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e0;
+  color: #334155;
+}
+
+/* Tablet and Desktop Styles */
+@media (min-width: 640px) {
+  .account-container {
+    padding: 32px 40px;
+    margin: 32px auto;
+  }
+
+  .account-container h2 {
+    font-size: 2rem;
+    margin-bottom: 32px;
+  }
+
+  .account-container label {
+    font-size: 0.9375rem;
+    margin-top: 24px;
+  }
+
+  .account-container input {
+    padding: 13px 16px;
+    font-size: 1rem;
+  }
+
+  .account-actions {
+    flex-direction: row;
+    gap: 14px;
+    margin-top: 36px;
+  }
+
+  .btn {
+    flex: 1;
+  }
+
+  .account-container + .btn {
+    margin: 24px auto;
+  }
+}
+
+@media (min-width: 1024px) {
+  .account-container {
+    padding: 40px 48px;
+    margin: 40px auto;
+  }
+
+  .account-container h2 {
+    font-size: 2.25rem;
+    margin-bottom: 36px;
+  }
+
+  .account-actions {
+    gap: 16px;
+    margin-top: 40px;
+  }
+}
+
+/* Accessibility Improvements */
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .account-container input {
+    transition: none;
+  }
+  
+  .btn:active {
+    transform: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .account-container {
+    border: 2px solid #475569;
+  }
+  
+  .btn {
+    border: 2px solid currentColor;
+  }
+  
+  .account-container input {
+    border-width: 2px;
+  }
+}
+
+/* Focus visible for keyboard navigation */
+.btn:focus-visible {
+  outline: 3px solid #93c5fd;
+  outline-offset: 2px;
+}
+
+.account-container input:focus-visible {
+  outline: 3px solid #93c5fd;
+  outline-offset: 2px;
+}
+</style>
+<div class="account-container">
+  <h2>My Account</h2>
+  <form method="POST" action="#">
+    <label>Name</label>
+    <input type="text" value="{{ session.user_name }}" disabled>
+    <label>Phone</label>
+    <input type="text" value="{{ session.get('user_phone', 'Phone Number Saved Successfully✅') }}" disabled>
+    <div class="account-actions">
+      <a href="{{ url_for('main.my_orders') }}" class="btn btn-secondary">
+        My Orders
+      </a>
+      <a href="{{ url_for('main.logout') }}" class="btn btn-danger">
+        Logout
+      </a>
+    </div>
+  </form>
+</div>
+<a href="{{ url_for('main.products') }}" class="btn" style="max-width:540px;margin:20px auto;display:block;">
+  ← Shop More
+</a>
+{% endblock %}

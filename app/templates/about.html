@@ -1,0 +1,563 @@
+{% extends "base.html" %}
+{% block title %}About Us - Ayurshop{% endblock %}
+{% block content %}
+
+<style>
+/* Loading Screen */
+.loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #2d7a3e 0%, #1e5a2d 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.loading-screen.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.loader {
+  width: 60px;
+  height: 60px;
+  border: 5px solid rgba(255,255,255,0.2);
+  border-top: 5px solid #25D366;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  color: white;
+  font-size: 1.2rem;
+  margin-top: 20px;
+  font-weight: 600;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Hero Section */
+.about-hero {
+  background: linear-gradient(135deg, #2d7a3e 0%, #1e5a2d 100%);
+  padding: 80px 20px 60px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.about-hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  animation: float 8s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-30px, 30px); }
+}
+
+.about-hero h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  color: white;
+  margin-bottom: 20px;
+  font-weight: 800;
+  position: relative;
+  z-index: 2;
+  animation: slideDown 0.8s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.about-hero p {
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  color: rgba(255,255,255,0.9);
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.7;
+  position: relative;
+  z-index: 2;
+  animation: slideUp 0.8s ease 0.2s backwards;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Founder Section */
+.founder-section {
+  padding: 80px 20px;
+  background: linear-gradient(to bottom, #ffffff 0%, #f0f7f2 100%);
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.founder-card {
+  background: white;
+  border-radius: 20px;
+  padding: 50px 40px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+  animation: fadeIn 1s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.founder-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(45, 122, 62, 0.05), transparent);
+  transition: left 0.8s ease;
+}
+
+.founder-card:hover::before {
+  left: 100%;
+}
+
+.founder-header {
+  text-align: center;
+  margin-bottom: 40px;
+  animation: slideUp 0.8s ease 0.3s backwards;
+}
+
+.founder-name {
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  color: #2d7a3e;
+  margin-bottom: 10px;
+  font-weight: 800;
+}
+
+.founder-title {
+  font-size: 1.2rem;
+  color: #25D366;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.founding-date {
+  font-size: 1rem;
+  color: #666;
+  font-style: italic;
+}
+
+.founder-content p {
+  color: #555;
+  line-height: 1.8;
+  font-size: 1.05rem;
+  margin-bottom: 20px;
+  text-align: justify;
+  animation: fadeInUp 0.8s ease forwards;
+  opacity: 0;
+}
+
+.founder-content p:nth-child(1) { animation-delay: 0.4s; }
+.founder-content p:nth-child(2) { animation-delay: 0.5s; }
+.founder-content p:nth-child(3) { animation-delay: 0.6s; }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Mission Section */
+.mission-section {
+  padding: 80px 20px;
+  background: linear-gradient(135deg, #2d7a3e 0%, #1e5a2d 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.mission-section::after {
+  content: '';
+  position: absolute;
+  bottom: -50%;
+  left: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+  animation: float 10s ease-in-out infinite reverse;
+}
+
+.mission-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+  position: relative;
+  z-index: 2;
+}
+
+.mission-card {
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 20px;
+  padding: 40px 30px;
+  text-align: center;
+  transition: all 0.4s ease;
+  animation: fadeInUp 0.8s ease forwards;
+  opacity: 0;
+}
+
+.mission-card:nth-child(1) { animation-delay: 0.2s; }
+.mission-card:nth-child(2) { animation-delay: 0.4s; }
+.mission-card:nth-child(3) { animation-delay: 0.6s; }
+
+.mission-card:hover {
+  transform: translateY(-10px) scale(1.03);
+  background: rgba(255,255,255,0.15);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+
+.mission-icon {
+  font-size: 3.5rem;
+  margin-bottom: 20px;
+  display: inline-block;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.mission-card h3 {
+  color: #25D366;
+  font-size: 1.8rem;
+  margin-bottom: 15px;
+  font-weight: 700;
+}
+
+.mission-card p {
+  color: rgba(255,255,255,0.9);
+  line-height: 1.7;
+  font-size: 1.05rem;
+}
+
+/* Values Section */
+.values-section {
+  padding: 80px 20px;
+  background: white;
+}
+
+.section-title {
+  text-align: center;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  color: #2d7a3e;
+  margin-bottom: 50px;
+  font-weight: 800;
+  animation: slideDown 0.8s ease;
+}
+
+.values-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 25px;
+}
+
+.value-item {
+  background: linear-gradient(135deg, #f0f7f2 0%, #e8f5e9 100%);
+  padding: 35px 25px;
+  border-radius: 15px;
+  border-left: 5px solid #25D366;
+  transition: all 0.3s ease;
+  animation: fadeInLeft 0.8s ease forwards;
+  opacity: 0;
+}
+
+.value-item:nth-child(1) { animation-delay: 0.1s; }
+.value-item:nth-child(2) { animation-delay: 0.2s; }
+.value-item:nth-child(3) { animation-delay: 0.3s; }
+.value-item:nth-child(4) { animation-delay: 0.4s; }
+.value-item:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes fadeInLeft {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.value-item:hover {
+  transform: translateX(10px);
+  box-shadow: 0 10px 30px rgba(45, 122, 62, 0.2);
+  border-left-width: 8px;
+}
+
+.value-item h4 {
+  color: #2d7a3e;
+  font-size: 1.3rem;
+  margin-bottom: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.value-item p {
+  color: #555;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+/* CTA Section */
+.cta-section {
+  padding: 80px 20px;
+  background: linear-gradient(135deg, #f0f7f2 0%, #e8f5e9 100%);
+  text-align: center;
+}
+
+.cta-content {
+  max-width: 700px;
+  margin: 0 auto;
+  animation: slideUp 0.8s ease;
+}
+
+.cta-content h2 {
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  color: #2d7a3e;
+  margin-bottom: 20px;
+  font-weight: 800;
+}
+
+.cta-content p {
+  font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 30px;
+  line-height: 1.7;
+}
+
+.cta-button {
+  display: inline-block;
+  background: linear-gradient(135deg, #25D366 0%, #1ea952 100%);
+  color: white;
+  padding: 16px 40px;
+  border-radius: 50px;
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 700;
+  box-shadow: 0 10px 30px rgba(37, 211, 102, 0.4);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.cta-button:hover::before {
+  width: 400px;
+  height: 400px;
+}
+
+.cta-button:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 15px 40px rgba(37, 211, 102, 0.5);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .about-hero {
+    padding: 60px 20px 40px;
+  }
+
+  .founder-card {
+    padding: 35px 25px;
+  }
+
+  .founder-content p {
+    text-align: left;
+  }
+
+  .mission-section,
+  .values-section,
+  .founder-section,
+  .cta-section {
+    padding: 50px 15px;
+  }
+
+  .mission-grid,
+  .values-grid {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .founder-card {
+    padding: 30px 20px;
+  }
+
+  .mission-card,
+  .value-item {
+    padding: 25px 20px;
+  }
+}
+</style>
+
+<!-- Loading Screen -->
+<div class="loading-screen" id="loadingScreen">
+  <div class="loader"></div>
+  <div class="loading-text">Loading Ayurshop Story...</div>
+</div>
+
+<!-- Hero Section -->
+<section class="about-hero">
+  <h1>About Ayurshop</h1>
+  <p>Bringing authentic Ayurveda to every home with dedication, trust, and genuine care for your well-being.</p>
+</section>
+
+<!-- Founder Section -->
+<section class="founder-section">
+  <div class="container">
+    <div class="founder-card">
+      <div class="founder-header">
+        <h2 class="founder-name">Mrs. Ashish Anand</h2>
+        <p class="founder-title">Founder & Visionary</p>
+        <p class="founding-date">Founded: 1st January 2026</p>
+      </div>
+      <div class="founder-content">
+        <p>
+          Ayurshop is a dedicated Ayurvedic medicine and wellness delivery service founded by Mrs. Ashish Anand, an entrepreneur committed to making traditional Indian healthcare accessible to every household. The idea behind Ayurshop was simple yet powerful: people should not have to struggle to find genuine Ayurvedic medicines, travel long distances, or deal with unreliable local availability.
+        </p>
+        <p>
+          With years of experience understanding customer health needs and market gaps, Mrs. Anand recognized the increasing demand for trustworthy Ayurvedic solutions. Her practical experience in running local health and wellness operations gave her the foundation to launch Ayurshop with clarity and purpose. Over time, she developed a strong understanding of Ayurvedic remedies, common customer concerns, and the importance of authenticity in herbal medicine.
+        </p>
+        <p>
+          What sets Ayurshop apart is its unwavering commitment to quality and convenience. Every item is sourced from trusted and established Ayurvedic companies, ensuring that customers receive only the best and most effective products. Unlike traditional shops, Ayurshop focuses on fast home delivery, making the entire experience smooth, stress-free, and genuinely customer-centric.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Mission Section -->
+<section class="mission-section">
+  <div class="container">
+    <div class="mission-grid">
+      <div class="mission-card">
+        <div class="mission-icon">🎯</div>
+        <h3>Our Mission</h3>
+        <p>To deliver high-quality Ayurvedic medicines and wellness products directly to customers' doorsteps with trust, transparency, and care.</p>
+      </div>
+      <div class="mission-card">
+        <div class="mission-icon">🌟</div>
+        <h3>Our Vision</h3>
+        <p>To become the most trusted Ayurvedic delivery service in the region, known for honesty, quality, and genuine care for customers' well-being.</p>
+      </div>
+      <div class="mission-card">
+        <div class="mission-icon">💚</div>
+        <h3>Our Promise</h3>
+        <p>Every product is authentic, ethically sourced, and delivered with the assurance of quality that your family deserves.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Values Section -->
+<section class="values-section">
+  <div class="container">
+    <h2 class="section-title">Why Choose Ayurshop?</h2>
+    <div class="values-grid">
+      <div class="value-item">
+        <h4>✓ 100% Authentic Products</h4>
+        <p>Every item sourced from trusted and certified Ayurvedic manufacturers.</p>
+      </div>
+      <div class="value-item">
+        <h4>✓ Fast Home Delivery</h4>
+        <p>Swift and secure delivery right to your doorstep across the region.</p>
+      </div>
+      <div class="value-item">
+        <h4>✓ Pure Natural Ingredients</h4>
+        <p>No harmful chemicals, only genuine herbal formulations.</p>
+      </div>
+      <div class="value-item">
+        <h4>✓ Expert Guidance</h4>
+        <p>Simple product recommendations without medical jargon or confusion.</p>
+      </div>
+      <div class="value-item">
+        <h4>✓ Customer First</h4>
+        <p>Quick, respectful support with transparent communication always.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+  <div class="cta-content">
+    <h2>Experience Authentic Ayurveda Today</h2>
+    <p>Join thousands of satisfied customers who trust Ayurshop for their daily wellness needs. Let us help you integrate Ayurveda naturally into your life.</p>
+    <a href="{{ url_for('main.products') }}" class="cta-button">Explore Our Products</a>
+  </div>
+</section>
+
+<script>
+// Loading Screen
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    document.getElementById('loadingScreen').classList.add('hidden');
+  }, 1500);
+});
+
+// Intersection Observer for scroll animations
+const observerOptions = {
+  threshold: 0.1,
+  rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver(function(entries) {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.style.animationPlayState = 'running';
+    }
+  });
+}, observerOptions);
+
+// Observe all animated elements
+document.querySelectorAll('.mission-card, .value-item, .founder-card').forEach(el => {
+  observer.observe(el);
+});
+</script>
+
+{% endblock %}

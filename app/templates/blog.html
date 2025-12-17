@@ -1,0 +1,722 @@
+{% extends "base.html" %}
+{% block title %}Blog - Ayurshop{% endblock %}
+{% block content %}
+
+<style>
+/* Loading Screen */
+.loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #2d7a3e 0%, #1e5a2d 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.loading-screen.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.loader {
+  width: 60px;
+  height: 60px;
+  border: 5px solid rgba(255,255,255,0.2);
+  border-top: 5px solid #25D366;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  color: white;
+  font-size: 1.2rem;
+  margin-top: 20px;
+  font-weight: 600;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Hero Section */
+.blog-hero {
+  background: linear-gradient(135deg, #2d7a3e 0%, #1e5a2d 100%);
+  padding: 80px 20px 60px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.blog-hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  animation: float 8s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-30px, 30px); }
+}
+
+.blog-hero h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  color: white;
+  margin-bottom: 20px;
+  font-weight: 800;
+  position: relative;
+  z-index: 2;
+  animation: slideDown 0.8s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.blog-hero p {
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  color: rgba(255,255,255,0.9);
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.7;
+  position: relative;
+  z-index: 2;
+  animation: slideUp 0.8s ease 0.2s backwards;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Mission Section */
+.mission-section {
+  padding: 80px 20px;
+  background: linear-gradient(to bottom, #ffffff 0%, #f0f7f2 100%);
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.mission-card {
+  background: white;
+  border-radius: 20px;
+  padding: 50px 40px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+  text-align: center;
+  animation: fadeIn 1s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.mission-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(45, 122, 62, 0.05), transparent);
+  transition: left 0.8s ease;
+}
+
+.mission-card:hover::before {
+  left: 100%;
+}
+
+.mission-icon {
+  font-size: 4rem;
+  margin-bottom: 25px;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.mission-card h2 {
+  font-size: clamp(1.8rem, 4vw, 2.3rem);
+  color: #2d7a3e;
+  margin-bottom: 20px;
+  font-weight: 800;
+}
+
+.mission-card p {
+  color: #555;
+  font-size: 1.05rem;
+  line-height: 1.8;
+  max-width: 850px;
+  margin: 0 auto 15px;
+}
+
+/* Topics Section */
+.topics-section {
+  padding: 80px 20px;
+  background: white;
+}
+
+.section-title {
+  text-align: center;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  color: #2d7a3e;
+  margin-bottom: 50px;
+  font-weight: 800;
+  animation: slideDown 0.8s ease;
+}
+
+.topics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+  margin-bottom: 50px;
+}
+
+.topic-card {
+  background: linear-gradient(135deg, #f0f7f2 0%, #e8f5e9 100%);
+  padding: 35px 30px;
+  border-radius: 20px;
+  transition: all 0.4s ease;
+  animation: fadeInUp 0.8s ease forwards;
+  opacity: 0;
+  position: relative;
+  overflow: hidden;
+  border-left: 5px solid #25D366;
+}
+
+.topic-card:nth-child(1) { animation-delay: 0.1s; }
+.topic-card:nth-child(2) { animation-delay: 0.2s; }
+.topic-card:nth-child(3) { animation-delay: 0.3s; }
+.topic-card:nth-child(4) { animation-delay: 0.4s; }
+.topic-card:nth-child(5) { animation-delay: 0.5s; }
+.topic-card:nth-child(6) { animation-delay: 0.6s; }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.topic-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(37, 211, 102, 0.1) 0%, transparent 70%);
+  transition: transform 0.6s ease;
+}
+
+.topic-card:hover::before {
+  transform: rotate(180deg);
+}
+
+.topic-card:hover {
+  transform: translateY(-10px) translateX(8px);
+  box-shadow: 0 20px 50px rgba(45, 122, 62, 0.2);
+  border-left-width: 8px;
+}
+
+.topic-icon {
+  font-size: 3rem;
+  margin-bottom: 20px;
+  display: inline-block;
+  position: relative;
+  z-index: 2;
+}
+
+.topic-card h3 {
+  color: #2d7a3e;
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+  font-weight: 700;
+  position: relative;
+  z-index: 2;
+}
+
+.topic-card p {
+  color: #555;
+  font-size: 1rem;
+  line-height: 1.6;
+  position: relative;
+  z-index: 2;
+}
+
+/* Blog Posts Section */
+.posts-section {
+  padding: 80px 20px;
+  background: linear-gradient(to bottom, #f0f7f2 0%, #ffffff 100%);
+}
+
+.posts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 35px;
+}
+
+.post-card {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+  transition: all 0.4s ease;
+  animation: fadeInUp 0.8s ease forwards;
+  opacity: 0;
+}
+
+.post-card:nth-child(1) { animation-delay: 0.2s; }
+.post-card:nth-child(2) { animation-delay: 0.4s; }
+
+.post-card:hover {
+  transform: translateY(-15px);
+  box-shadow: 0 20px 60px rgba(45, 122, 62, 0.25);
+}
+
+.post-image {
+  width: 100%;
+  height: 220px;
+  background: linear-gradient(135deg, #2d7a3e 0%, #1e5a2d 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.post-image::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+  animation: rotate 15s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.post-image span {
+  position: relative;
+  z-index: 2;
+}
+
+.post-content {
+  padding: 30px 25px;
+}
+
+.post-category {
+  display: inline-block;
+  background: #e8f5e9;
+  color: #2d7a3e;
+  padding: 6px 15px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.post-card h3 {
+  color: #2d7a3e;
+  font-size: 1.6rem;
+  margin-bottom: 15px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.post-card p {
+  color: #555;
+  line-height: 1.7;
+  font-size: 1rem;
+  margin-bottom: 20px;
+}
+
+.read-more {
+  color: #25D366;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.read-more:hover {
+  gap: 15px;
+  color: #1ea952;
+}
+
+/* Trust Section */
+.trust-section {
+  padding: 80px 20px;
+  background: linear-gradient(135deg, #2d7a3e 0%, #1e5a2d 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.trust-section::after {
+  content: '';
+  position: absolute;
+  bottom: -50%;
+  left: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+  animation: float 10s ease-in-out infinite reverse;
+}
+
+.trust-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
+  position: relative;
+  z-index: 2;
+}
+
+.trust-card {
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 20px;
+  padding: 35px 30px;
+  text-align: center;
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.8s ease forwards;
+  opacity: 0;
+}
+
+.trust-card:nth-child(1) { animation-delay: 0.1s; }
+.trust-card:nth-child(2) { animation-delay: 0.2s; }
+.trust-card:nth-child(3) { animation-delay: 0.3s; }
+.trust-card:nth-child(4) { animation-delay: 0.4s; }
+
+.trust-card:hover {
+  transform: translateY(-10px) scale(1.03);
+  background: rgba(255,255,255,0.15);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+
+.trust-icon {
+  font-size: 3rem;
+  margin-bottom: 20px;
+  display: inline-block;
+}
+
+.trust-card h3 {
+  color: #25D366;
+  font-size: 1.3rem;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.trust-card p {
+  color: rgba(255,255,255,0.9);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* CTA Section */
+.cta-section {
+  padding: 80px 20px;
+  background: linear-gradient(135deg, #f0f7f2 0%, #e8f5e9 100%);
+  text-align: center;
+}
+
+.cta-content {
+  max-width: 700px;
+  margin: 0 auto;
+  animation: slideUp 0.8s ease;
+}
+
+.cta-content h2 {
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  color: #2d7a3e;
+  margin-bottom: 20px;
+  font-weight: 800;
+}
+
+.cta-content p {
+  font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 30px;
+  line-height: 1.7;
+}
+
+.cta-button {
+  display: inline-block;
+  background: linear-gradient(135deg, #25D366 0%, #1ea952 100%);
+  color: white;
+  padding: 16px 40px;
+  border-radius: 50px;
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 700;
+  box-shadow: 0 10px 30px rgba(37, 211, 102, 0.4);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.cta-button:hover::before {
+  width: 400px;
+  height: 400px;
+}
+
+.cta-button:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 15px 40px rgba(37, 211, 102, 0.5);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .blog-hero,
+  .mission-section,
+  .topics-section,
+  .posts-section,
+  .trust-section,
+  .cta-section {
+    padding: 50px 15px;
+  }
+
+  .mission-card {
+    padding: 35px 25px;
+  }
+
+  .topics-grid,
+  .posts-grid,
+  .trust-grid {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .topic-card,
+  .post-content,
+  .trust-card {
+    padding: 25px 20px;
+  }
+
+  .post-image {
+    height: 180px;
+    font-size: 4rem;
+  }
+}
+</style>
+
+<!-- Loading Screen -->
+<div class="loading-screen" id="loadingScreen">
+  <div class="loader"></div>
+  <div class="loading-text">Loading Blog...</div>
+</div>
+
+<!-- Hero Section -->
+<section class="blog-hero">
+  <h1>Ayurshop Blog</h1>
+  <p>Your daily guide to simple, practical Ayurveda – wellness tips, herb guides, and authentic Ayurvedic knowledge.</p>
+</section>
+
+<!-- Mission Section -->
+<section class="mission-section">
+  <div class="container">
+    <div class="mission-card">
+      <div class="mission-icon">📚</div>
+      <h2>Our Approach to Ayurvedic Education</h2>
+      <p>
+        The Ayurshop blog is designed as a clear, reliable source of information for anyone who wants to understand Ayurveda without confusion. Many people find Ayurvedic terminology complex, and online resources often provide vague or exaggerated claims.
+      </p>
+      <p>
+        Our goal is different—we provide simple, practical, and truthful Ayurvedic knowledge that anyone can apply in everyday life. We write in plain language, focusing on real-life situations, common health issues, and remedies backed by classical Ayurvedic principles.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Topics We Cover -->
+<section class="topics-section">
+  <div class="container">
+    <h2 class="section-title">Topics We Cover</h2>
+    <div class="topics-grid">
+      <div class="topic-card">
+        <div class="topic-icon">☀️</div>
+        <h3>Daily Health Tips</h3>
+        <p>Small changes like drinking warm water, sleeping early, or using specific herbs for digestion.</p>
+      </div>
+      
+      <div class="topic-card">
+        <div class="topic-icon">🌿</div>
+        <h3>Herb Guides</h3>
+        <p>Detailed information on herbs like Ashwagandha, Giloy, Neem, Brahmi, Triphala, and Tulsi.</p>
+      </div>
+      
+      <div class="topic-card">
+        <div class="topic-icon">🍃</div>
+        <h3>Seasonal Wellness</h3>
+        <p>Routines for summer heat, monsoon infections, or winter immunity.</p>
+      </div>
+      
+      <div class="topic-card">
+        <div class="topic-icon">💊</div>
+        <h3>Disease-wise Support</h3>
+        <p>Acidity, cold & cough, hair fall, skin issues, stress, insomnia, and joint pain.</p>
+      </div>
+      
+      <div class="topic-card">
+        <div class="topic-icon">📦</div>
+        <h3>Product Knowledge</h3>
+        <p>What different Ayurvedic medicines do, how to take them, and when they help.</p>
+      </div>
+      
+      <div class="topic-card">
+        <div class="topic-icon">🧘</div>
+        <h3>Lifestyle Advice</h3>
+        <p>Food habits, daily routines, detox practices, yoga basics, and breathing exercises.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Blog Posts -->
+<section class="posts-section">
+  <div class="container">
+    <h2 class="section-title">Featured Articles</h2>
+    <div class="posts-grid">
+      <div class="post-card">
+        <div class="post-image">
+          <span>🌱</span>
+        </div>
+        <div class="post-content">
+          <span class="post-category">Herb Guide</span>
+          <h3>Benefits of Ashwagandha</h3>
+          <p>Discover how this powerful adaptogenic herb reduces stress, boosts energy, improves sleep quality, and supports overall well-being naturally.</p>
+          <a href="#" class="read-more">Read More →</a>
+        </div>
+      </div>
+      
+      <div class="post-card">
+        <div class="post-image">
+          <span>✨</span>
+        </div>
+        <div class="post-content">
+          <span class="post-category">Skin Care</span>
+          <h3>Guide to Ayurvedic Skin Care</h3>
+          <p>Learn how to maintain glowing, healthy skin naturally using herbal products, traditional remedies, and time-tested Ayurvedic practices.</p>
+          <a href="#" class="read-more">Read More →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Why Trust Our Blog -->
+<section class="trust-section">
+  <div class="container">
+    <h2 class="section-title" style="color: white;">Why Customers Trust Our Blog</h2>
+    <div class="trust-grid">
+      <div class="trust-card">
+        <div class="trust-icon">✓</div>
+        <h3>No False Promises</h3>
+        <p>We avoid unrealistic claims and focus on honest information.</p>
+      </div>
+      
+      <div class="trust-card">
+        <div class="trust-icon">📝</div>
+        <h3>Clear & Useful</h3>
+        <p>Short, practical explanations you can apply immediately.</p>
+      </div>
+      
+      <div class="trust-card">
+        <div class="trust-icon">🎯</div>
+        <h3>Real Benefits</h3>
+        <p>We recommend only products with genuine therapeutic value.</p>
+      </div>
+      
+      <div class="trust-card">
+        <div class="trust-icon">💡</div>
+        <h3>Guidance First</h3>
+        <p>We focus on education, not aggressive selling.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+  <div class="cta-content">
+    <h2>Ready to Start Your Wellness Journey?</h2>
+    <p>Ayurshop's blog is more than content—it's a trusted companion for people who want guidance, clarity, and genuine Ayurvedic wisdom.</p>
+    <a href="{{ url_for('main.products') }}" class="cta-button">Explore Our Products</a>
+  </div>
+</section>
+
+<script>
+// Loading Screen
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    document.getElementById('loadingScreen').classList.add('hidden');
+  }, 1500);
+});
+
+// Intersection Observer for scroll animations
+const observerOptions = {
+  threshold: 0.1,
+  rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver(function(entries) {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.style.animationPlayState = 'running';
+    }
+  });
+}, observerOptions);
+
+// Observe all animated elements
+document.querySelectorAll('.topic-card, .post-card, .trust-card, .mission-card').forEach(el => {
+  observer.observe(el);
+});
+</script>
+
+{% endblock %}

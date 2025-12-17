@@ -1,0 +1,414 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Admin - Orders{% endblock %}
+{% block content %}
+<style>
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.orders-container {
+    padding: 12px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.orders-header {
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #2c5f2d;
+}
+
+.orders-header h1 {
+    margin: 0 0 4px 0;
+    color: #2c5f2d;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.orders-subtitle {
+    margin: 0;
+    font-size: 13px;
+    color: #6b7280;
+    line-height: 1.4;
+}
+
+/* Mobile-first: Card layout */
+.orders-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.orders-table thead {
+    display: none;
+}
+
+.orders-table tbody {
+    display: block;
+}
+
+.orders-table tr {
+    display: block;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    overflow: hidden;
+}
+
+.orders-table td {
+    display: block;
+    padding: 12px 14px;
+    border: none;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.orders-table td:first-child {
+    background: #f9fafb;
+    padding: 14px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.order-id {
+    font-weight: 700;
+    color: #2c5f2d;
+    font-size: 16px;
+    letter-spacing: 0.01em;
+}
+
+.orders-table td:not(:first-child):not(:last-child):not(:nth-last-child(2)) {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.orders-table td:not(:first-child):not(:last-child):not(:nth-last-child(2)):before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #6b7280;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.order-total {
+    font-weight: 600;
+    color: #111827;
+    font-size: 15px;
+}
+
+.orders-table td:nth-child(5) {
+    padding: 12px 14px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.orders-table td:nth-child(5):before {
+    content: 'Status';
+    display: block;
+    font-weight: 600;
+    color: #6b7280;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+}
+
+.status {
+    display: inline-block;
+    min-width: 90px;
+    text-align: center;
+    padding: 6px 14px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: capitalize;
+    background: #e5e7eb;   /* fallback */
+    color: #111827;        /* fallback */
+}
+
+.status.pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status.confirmed {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.status.delivered {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status.cancelled {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.status.processing {
+    background: #e0e7ff;
+    color: #3730a3;
+}
+
+.orders-table td:nth-child(6),
+.orders-table td:nth-child(7) {
+    padding: 0;
+    border: none;
+}
+
+.orders-table td:nth-child(6) {
+    padding: 8px 14px 0 14px;
+}
+
+.orders-table td:nth-child(7) {
+    padding: 8px 14px 14px 14px;
+}
+
+.action-link {
+    display: block;
+    width: 100%;
+    padding: 13px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.15s;
+    border: none;
+}
+
+.view-link {
+    background: #2c5f2d;
+    color: white;
+}
+
+.view-link:active {
+    background: #1f4420;
+    transform: scale(0.98);
+}
+
+.delete-link {
+    background: #dc3545;
+    color: white;
+}
+
+.delete-link:active {
+    background: #bd2130;
+    transform: scale(0.98);
+}
+
+/* Tablet breakpoint */
+@media (min-width: 640px) {
+    .orders-container {
+        padding: 16px;
+    }
+
+    .orders-header h1 {
+        font-size: 24px;
+    }
+
+    .orders-table tr {
+        margin-bottom: 14px;
+    }
+
+    .orders-table td {
+        font-size: 15px;
+    }
+
+    .action-link {
+        padding: 14px 18px;
+        font-size: 15px;
+    }
+}
+
+/* Desktop: Table layout */
+@media (min-width: 1024px) {
+    .orders-container {
+        padding: 24px;
+    }
+
+    .orders-header {
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+    }
+
+    .orders-header h1 {
+        font-size: 28px;
+    }
+
+    .orders-subtitle {
+        font-size: 14px;
+    }
+
+    .orders-table {
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .orders-table thead {
+        display: table-header-group;
+        background: linear-gradient(90deg, #2c5f2d, #3a7a3c);
+    }
+
+    .orders-table th {
+        padding: 16px 14px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: white;
+    }
+
+    .orders-table tbody {
+        display: table-row-group;
+    }
+
+    .orders-table tr {
+        display: table-row;
+        background: transparent;
+        border: none;
+        border-radius: 0;
+        margin: 0;
+    }
+
+    .orders-table tbody tr:nth-child(even) {
+        background: #fafafa;
+    }
+
+    .orders-table tbody tr:hover {
+        background: #f3f6f4;
+    }
+
+    .orders-table td {
+        display: table-cell;
+        padding: 15px 14px;
+        border-bottom: 1px solid #e5e7eb;
+        vertical-align: middle;
+    }
+
+    .orders-table td:first-child {
+        background: transparent;
+        padding: 15px 14px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .orders-table td:not(:first-child):not(:last-child):not(:nth-last-child(2)):before {
+        display: none;
+    }
+
+    .orders-table td:nth-child(5):before {
+        display: none;
+    }
+
+    .orders-table td:nth-child(6),
+    .orders-table td:nth-child(7) {
+        padding: 15px 14px;
+    }
+
+    .orders-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .order-id {
+        font-size: 15px;
+    }
+
+    .action-link {
+        display: inline-block;
+        width: auto;
+        padding: 7px 14px;
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    .view-link:hover {
+        background: #1f4420;
+    }
+
+    .delete-link:hover {
+        background: #bd2130;
+    }
+
+    .view-link:active,
+    .delete-link:active {
+        transform: none;
+    }
+}
+.status.shipped {
+    background: #fde68a;
+    color: #92400e;
+}
+
+.status.dispatched {
+    background: #cffafe;
+    color: #155e75;
+}
+.status.shipped {
+    background: #fde68a;
+    color: #92400e;
+}
+
+.status.dispatched {
+    background: #cffafe;
+    color: #155e75;
+}
+
+</style>
+
+<div class="orders-container">
+    <div class="orders-header">
+        <h1>All Orders</h1>
+        <p class="orders-subtitle">Manage and track customer orders</p>
+    </div>
+
+    <div class="orders-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Details</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for o in orders %}
+                <tr>
+                    <td data-label="Order ID" class="order-id">{{ o['id'] }}</td>
+                    <td data-label="Name">{{ o['name'] }}</td>
+                    <td data-label="Phone">{{ o['phone'] }}</td>
+                    <td data-label="Total" class="order-total">₹{{ o['total'] }}</td>
+                    <td data-label="Status">
+                        <span class="status {{ o['status']|lower }}">
+    {{ o['status'] }}
+</span>
+
+                    </td>
+                    <td data-label="Details">
+                        <a href="{{ url_for('admin.order_detail', order_id=o['id']) }}" class="action-link view-link">
+                            View
+                        </a>
+                    </td>
+                    <td data-label="Delete">
+                        <a href="{{ url_for('admin.delete_order', order_id=o['id']) }}" class="action-link delete-link" onclick="return confirm('Delete this order?');">
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,805 @@
+{% extends "base.html" %}
+{% block title %}FAQ - Ayurshop{% endblock %}
+{% block content %}
+
+<style>
+/* Loading Screen */
+.loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #2d7a3e 0%, #1e5a2d 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.loading-screen.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.loader {
+  width: 60px;
+  height: 60px;
+  border: 5px solid rgba(255,255,255,0.2);
+  border-top: 5px solid #25D366;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  color: white;
+  font-size: 1.2rem;
+  margin-top: 20px;
+  font-weight: 600;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Hero Section */
+.faq-hero {
+  background: linear-gradient(135deg, #2d7a3e 0%, #1e5a2d 100%);
+  padding: 80px 20px 60px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.faq-hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  animation: float 8s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-30px, 30px); }
+}
+
+.faq-hero h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  color: white;
+  margin-bottom: 20px;
+  font-weight: 800;
+  position: relative;
+  z-index: 2;
+  animation: slideDown 0.8s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.faq-hero p {
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  color: rgba(255,255,255,0.9);
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.7;
+  position: relative;
+  z-index: 2;
+  animation: slideUp 0.8s ease 0.2s backwards;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Intro Section */
+.intro-section {
+  padding: 80px 20px;
+  background: linear-gradient(to bottom, #ffffff 0%, #f0f7f2 100%);
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.intro-card {
+  background: white;
+  border-radius: 20px;
+  padding: 50px 40px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+  text-align: center;
+  animation: fadeIn 1s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.intro-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(45, 122, 62, 0.05), transparent);
+  transition: left 0.8s ease;
+}
+
+.intro-card:hover::before {
+  left: 100%;
+}
+
+.intro-icon {
+  font-size: 4rem;
+  margin-bottom: 25px;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.intro-card h2 {
+  font-size: clamp(1.8rem, 4vw, 2.3rem);
+  color: #2d7a3e;
+  margin-bottom: 20px;
+  font-weight: 800;
+}
+
+.intro-card p {
+  color: #555;
+  font-size: 1.05rem;
+  line-height: 1.8;
+  max-width: 850px;
+  margin: 0 auto;
+}
+
+/* FAQ Section */
+.faq-section {
+  padding: 80px 20px;
+  background: white;
+}
+
+.section-title {
+  text-align: center;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  color: #2d7a3e;
+  margin-bottom: 50px;
+  font-weight: 800;
+  animation: slideDown 0.8s ease;
+}
+
+.faq-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.faq-item {
+  background: linear-gradient(135deg, #f0f7f2 0%, #e8f5e9 100%);
+  border-radius: 15px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+  animation: fadeInUp 0.6s ease forwards;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.faq-item:nth-child(1) { animation-delay: 0.1s; }
+.faq-item:nth-child(2) { animation-delay: 0.15s; }
+.faq-item:nth-child(3) { animation-delay: 0.2s; }
+.faq-item:nth-child(4) { animation-delay: 0.25s; }
+.faq-item:nth-child(5) { animation-delay: 0.3s; }
+.faq-item:nth-child(6) { animation-delay: 0.35s; }
+.faq-item:nth-child(7) { animation-delay: 0.4s; }
+.faq-item:nth-child(8) { animation-delay: 0.45s; }
+.faq-item:nth-child(9) { animation-delay: 0.5s; }
+.faq-item:nth-child(10) { animation-delay: 0.55s; }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.faq-item:hover {
+  box-shadow: 0 10px 35px rgba(45, 122, 62, 0.15);
+  transform: translateX(5px);
+}
+
+.faq-question {
+  padding: 25px 30px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #2d7a3e;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.faq-question::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 5px;
+  background: #25D366;
+  transform: scaleY(0);
+  transition: transform 0.3s ease;
+}
+
+.faq-item:hover .faq-question::before {
+  transform: scaleY(1);
+}
+
+.question-text {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.question-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 35px;
+  height: 35px;
+  background: #25D366;
+  color: white;
+  border-radius: 50%;
+  font-size: 1rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.faq-icon {
+  font-size: 1.5rem;
+  transition: transform 0.3s ease;
+  color: #25D366;
+  flex-shrink: 0;
+}
+
+.faq-item.active .faq-icon {
+  transform: rotate(180deg);
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, padding 0.4s ease;
+  padding: 0 30px;
+}
+
+.faq-item.active .faq-answer {
+  max-height: 500px;
+  padding: 0 30px 25px 80px;
+}
+
+.faq-answer p {
+  color: #555;
+  font-size: 1.05rem;
+  line-height: 1.8;
+  margin: 0;
+}
+
+/* Commitment Section */
+.commitment-section {
+  padding: 80px 20px;
+  background: linear-gradient(135deg, #2d7a3e 0%, #1e5a2d 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.commitment-section::after {
+  content: '';
+  position: absolute;
+  bottom: -50%;
+  right: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+  animation: float 10s ease-in-out infinite reverse;
+}
+
+.commitment-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
+  position: relative;
+  z-index: 2;
+}
+
+.commitment-card {
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 20px;
+  padding: 35px 30px;
+  text-align: center;
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.8s ease forwards;
+  opacity: 0;
+}
+
+.commitment-card:nth-child(1) { animation-delay: 0.1s; }
+.commitment-card:nth-child(2) { animation-delay: 0.2s; }
+.commitment-card:nth-child(3) { animation-delay: 0.3s; }
+.commitment-card:nth-child(4) { animation-delay: 0.4s; }
+.commitment-card:nth-child(5) { animation-delay: 0.5s; }
+
+.commitment-card:hover {
+  transform: translateY(-10px) scale(1.03);
+  background: rgba(255,255,255,0.15);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+
+.commitment-icon {
+  font-size: 3rem;
+  margin-bottom: 20px;
+  display: inline-block;
+}
+
+.commitment-card h3 {
+  color: #25D366;
+  font-size: 1.3rem;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.commitment-card p {
+  color: rgba(255,255,255,0.9);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* CTA Section */
+.cta-section {
+  padding: 80px 20px;
+  background: linear-gradient(135deg, #f0f7f2 0%, #e8f5e9 100%);
+  text-align: center;
+}
+
+.cta-content {
+  max-width: 700px;
+  margin: 0 auto;
+  animation: slideUp 0.8s ease;
+}
+
+.cta-content h2 {
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  color: #2d7a3e;
+  margin-bottom: 20px;
+  font-weight: 800;
+}
+
+.cta-content p {
+  font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 30px;
+  line-height: 1.7;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.cta-button {
+  display: inline-block;
+  background: linear-gradient(135deg, #25D366 0%, #1ea952 100%);
+  color: white;
+  padding: 16px 40px;
+  border-radius: 50px;
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 700;
+  box-shadow: 0 10px 30px rgba(37, 211, 102, 0.4);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.cta-button:hover::before {
+  width: 400px;
+  height: 400px;
+}
+
+.cta-button:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 15px 40px rgba(37, 211, 102, 0.5);
+}
+
+.cta-button-secondary {
+  background: transparent;
+  border: 2px solid #2d7a3e;
+  color: #2d7a3e;
+  box-shadow: 0 5px 20px rgba(45, 122, 62, 0.2);
+}
+
+.cta-button-secondary:hover {
+  background: #2d7a3e;
+  color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .faq-hero,
+  .intro-section,
+  .faq-section,
+  .commitment-section,
+  .cta-section {
+    padding: 50px 15px;
+  }
+
+  .intro-card {
+    padding: 35px 25px;
+  }
+
+  .faq-question {
+    padding: 20px 20px;
+    font-size: 1.05rem;
+  }
+
+  .question-number {
+    width: 30px;
+    height: 30px;
+    font-size: 0.9rem;
+  }
+
+  .faq-item.active .faq-answer {
+    padding: 0 20px 20px 65px;
+  }
+
+  .commitment-grid {
+    gap: 20px;
+  }
+
+  .cta-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cta-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .faq-question {
+    padding: 18px 15px;
+    font-size: 1rem;
+  }
+
+  .question-text {
+    gap: 10px;
+  }
+
+  .question-number {
+    width: 28px;
+    height: 28px;
+    font-size: 0.85rem;
+  }
+
+  .faq-item.active .faq-answer {
+    padding: 0 15px 18px 58px;
+  }
+
+  .commitment-card {
+    padding: 30px 20px;
+  }
+}
+</style>
+
+<!-- Loading Screen -->
+<div class="loading-screen" id="loadingScreen">
+  <div class="loader"></div>
+  <div class="loading-text">Loading FAQs...</div>
+</div>
+
+<!-- Hero Section -->
+<section class="faq-hero">
+  <h1>Frequently Asked Questions</h1>
+  <p>Everything you need to know about Ayurshop – delivery, products, authenticity, and order processes.</p>
+</section>
+
+<!-- Intro Section -->
+<section class="intro-section">
+  <div class="container">
+    <div class="intro-card">
+      <div class="intro-icon">💡</div>
+      <h2>Complete Transparency</h2>
+      <p>
+        Customers often have questions about Ayurvedic medicines, delivery timelines, product authenticity, and order processes. Ayurshop maintains complete transparency so customers feel confident ordering from us. Below are the most common questions we receive, answered clearly and directly.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="faq-section">
+  <div class="container">
+    <h2 class="section-title">Your Questions Answered</h2>
+    <div class="faq-container">
+      
+      <div class="faq-item" onclick="toggleFAQ(this)">
+        <button class="faq-question">
+          <span class="question-text">
+            <span class="question-number">1</span>
+            Do you provide home delivery?
+          </span>
+          <span class="faq-icon">▼</span>
+        </button>
+        <div class="faq-answer">
+          <p>Yes. Ayurshop offers fast and reliable home delivery for Ayurvedic medicines and wellness products. Customers can place orders and receive them at their doorstep. This saves time and ensures convenient access to essential products.</p>
+        </div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFAQ(this)">
+        <button class="faq-question">
+          <span class="question-text">
+            <span class="question-number">2</span>
+            Are your products 100% genuine?
+          </span>
+          <span class="faq-icon">▼</span>
+        </button>
+        <div class="faq-answer">
+          <p>Absolutely. Ayurshop sources items directly from authorized distributors or trusted Ayurvedic brands like Dabur, Baidyanath, Himalaya, Patanjali, Zandu, and more. We never sell duplicate or repackaged items.</p>
+        </div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFAQ(this)">
+        <button class="faq-question">
+          <span class="question-text">
+            <span class="question-number">3</span>
+            What types of products do you deliver?
+          </span>
+          <span class="faq-icon">▼</span>
+        </button>
+        <div class="faq-answer">
+          <p>We supply Ayurvedic medicines, herbal supplements, classical formulations (Churna, Vati, Bhasma, Ark, Oils), wellness and personal care products, and immunity boosters. Our product list continues to expand based on customer needs.</p>
+        </div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFAQ(this)">
+        <button class="faq-question">
+          <span class="question-text">
+            <span class="question-number">4</span>
+            What is the delivery time?
+          </span>
+          <span class="faq-icon">▼</span>
+        </button>
+        <div class="faq-answer">
+          <p>Most orders are delivered same day or next day, depending on your location. We prioritize urgent requirements and try to dispatch items as soon as possible.</p>
+        </div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFAQ(this)">
+        <button class="faq-question">
+          <span class="question-text">
+            <span class="question-number">5</span>
+            Do I need a prescription?
+          </span>
+          <span class="faq-icon">▼</span>
+        </button>
+        <div class="faq-answer">
+          <p>Most Ayurvedic products do not require prescriptions. Only a few specialized formulations request medical advice. For regular wellness items, customers can order freely.</p>
+        </div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFAQ(this)">
+        <button class="faq-question">
+          <span class="question-text">
+            <span class="question-number">6</span>
+            What if I receive a damaged or incorrect item?
+          </span>
+          <span class="faq-icon">▼</span>
+        </button>
+        <div class="faq-answer">
+          <p>Customers can request a replacement within 24 hours of receiving the product. Contact our support number, share a photo if necessary, and we will arrange a hassle-free replacement.</p>
+        </div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFAQ(this)">
+        <button class="faq-question">
+          <span class="question-text">
+            <span class="question-number">7</span>
+            Is COD (Cash on Delivery) available?
+          </span>
+          <span class="faq-icon">▼</span>
+        </button>
+        <div class="faq-answer">
+          <p>Yes. Ayurshop offers Cash on Delivery for most locations so customers can pay after receiving their order.</p>
+        </div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFAQ(this)">
+        <button class="faq-question">
+          <span class="question-text">
+            <span class="question-number">8</span>
+            How can I track my order?
+          </span>
+          <span class="faq-icon">▼</span>
+        </button>
+        <div class="faq-answer">
+          <p>You can call our support number for live delivery updates. We also plan to introduce WhatsApp-based tracking soon.</p>
+        </div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFAQ(this)">
+        <button class="faq-question">
+          <span class="question-text">
+            <span class="question-number">9</span>
+            Are your prices higher than local shops?
+          </span>
+          <span class="faq-icon">▼</span>
+        </button>
+        <div class="faq-answer">
+          <p>No. Our pricing is transparent and fair. We often provide discounts, wellness combos, and offers. Customers also save travel time and cost due to home delivery.</p>
+        </div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFAQ(this)">
+        <button class="faq-question">
+          <span class="question-text">
+            <span class="question-number">10</span>
+            Do you offer returns or refunds?
+          </span>
+          <span class="faq-icon">▼</span>
+        </button>
+        <div class="faq-answer">
+          <p>Returns are accepted for damaged or incorrect items. Refunds or replacements are processed quickly to ensure customer satisfaction.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Commitment Section -->
+<section class="commitment-section">
+  <div class="container">
+    <h2 class="section-title" style="color: white;">Our Commitment to Customers</h2>
+    <div class="commitment-grid">
+      <div class="commitment-card">
+        <div class="commitment-icon">🚚</div>
+        <h3>Fast Delivery</h3>
+        <p>Same-day or next-day delivery to your doorstep</p>
+      </div>
+      
+      <div class="commitment-card">
+        <div class="commitment-icon">✓</div>
+        <h3>Genuine Products</h3>
+        <p>High-quality, authentic Ayurvedic medicines</p>
+      </div>
+      
+      <div class="commitment-card">
+        <div class="commitment-icon">💬</div>
+        <h3>Easy Support</h3>
+        <p>Quick and helpful customer assistance</p>
+      </div>
+      
+      <div class="commitment-card">
+        <div class="commitment-icon">📢</div>
+        <h3>Clear Communication</h3>
+        <p>Transparent updates throughout your order</p>
+      </div>
+      
+      <div class="commitment-card">
+        <div class="commitment-icon">💰</div>
+        <h3>Affordable Wellness</h3>
+        <p>Fair pricing for every family</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+  <div class="cta-content">
+    <h2>Still Have Questions?</h2>
+    <p>We're here to help! Contact us anytime for personalized assistance with your Ayurvedic wellness journey.</p>
+    <div class="cta-buttons">
+      <a href="{{ url_for('main.contact') }}" class="cta-button">Contact Us</a>
+      <a href="{{ url_for('main.products') }}" class="cta-button cta-button-secondary">Browse Products</a>
+    </div>
+  </div>
+</section>
+
+<script>
+// Loading Screen
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    document.getElementById('loadingScreen').classList.add('hidden');
+  }, 1500);
+});
+
+// Toggle FAQ
+function toggleFAQ(element) {
+  const isActive = element.classList.contains('active');
+  
+  // Close all FAQs
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.classList.remove('active');
+  });
+  
+  // Open clicked FAQ if it wasn't active
+  if (!isActive) {
+    element.classList.add('active');
+  }
+}
+
+// Intersection Observer for scroll animations
+const observerOptions = {
+  threshold: 0.1,
+  rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver(function(entries) {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.style.animationPlayState = 'running';
+    }
+  });
+}, observerOptions);
+
+// Observe all animated elements
+document.querySelectorAll('.faq-item, .commitment-card, .intro-card').forEach(el => {
+  observer.observe(el);
+});
+
+// Close FAQ when clicking outside
+document.addEventListener('click', function(event) {
+  if (!event.target.closest('.faq-item')) {
+    document.querySelectorAll('.faq-item').forEach(item => {
+      item.classList.remove('active');
+    });
+  }
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product - Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        /* Mobile-first Header */
+        .header {
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 16px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .back-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 18px;
+        }
+
+        .back-btn:hover {
+            background: #f9fafb;
+            border-color: #d1d5db;
+        }
+
+        .page-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .form-card {
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+        }
+
+        .form-box {
+            padding: 24px;
+        }
+
+        /* Error Box */
+        .error-box {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+        }
+
+        /* Section Headers */
+        .section-header {
+            margin: 32px 0 20px 0;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f3f4f6;
+        }
+
+        .section-header:first-child {
+            margin-top: 0;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #111827;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Form Grid - Mobile Responsive */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .form-group.full-width {
+                grid-column: 1 / -1;
+            }
+        }
+
+        /* Form Groups */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 8px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+
+        label .required {
+            color: #ef4444;
+            margin-left: 4px;
+            font-size: 16px;
+        }
+
+        /* Input Styles */
+        input[type="text"],
+        input[type="number"],
+        select {
+            padding: 11px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.2s;
+            background: #ffffff;
+            color: #111827;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        input::placeholder {
+            color: #9ca3af;
+        }
+
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 40px;
+        }
+
+        textarea {
+            padding: 11px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+            resize: vertical;
+            min-height: 140px;
+            transition: all 0.2s;
+            background: #ffffff;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        /* Helper Text */
+        .helper-text {
+            font-size: 13px;
+            color: #6b7280;
+            margin-top: 6px;
+        }
+
+        /* Badge System */
+        .badge-input-container {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .badge-input {
+            flex: 1;
+        }
+
+        .add-badge-btn {
+            padding: 11px 20px;
+            background: #6366f1;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .add-badge-btn:hover {
+            background: #4f46e5;
+        }
+
+        .add-badge-btn:active {
+            transform: scale(0.98);
+        }
+
+        .badge-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .badge-item {
+            display: inline-flex;
+            align-items: center;
+            background: #f3f4f6;
+            color: #374151;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            border: 1px solid #e5e7eb;
+        }
+
+        .remove-badge {
+            margin-left: 8px;
+            cursor: pointer;
+            color: #6b7280;
+            font-size: 18px;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+
+        .remove-badge:hover {
+            color: #ef4444;
+        }
+
+        /* File Upload */
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 20px;
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #f9fafb;
+            text-align: center;
+        }
+
+        .file-input-label:hover {
+            border-color: #6366f1;
+            background: #f3f4f6;
+        }
+
+        .upload-icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+
+        .upload-text {
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        .upload-subtext {
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .file-info {
+            margin-top: 12px;
+            font-size: 14px;
+            padding: 10px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .file-info.success {
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .file-info.error {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: #6366f1;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 32px;
+        }
+
+        .submit-btn:hover {
+            background: #4f46e5;
+        }
+
+        .submit-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 767px) {
+            .container {
+                padding: 16px;
+            }
+
+            .form-box {
+                padding: 20px;
+            }
+
+            .page-title {
+                font-size: 16px;
+            }
+
+            .section-title {
+                font-size: 15px;
+            }
+
+            .badge-input-container {
+                flex-direction: column;
+            }
+
+            .add-badge-btn {
+                width: 100%;
+            }
+        }
+
+        /* Tablet Optimizations */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .container {
+                padding: 24px;
+            }
+        }
+
+        /* Desktop Optimizations */
+        @media (min-width: 1024px) {
+            .header {
+                padding: 20px 24px;
+            }
+
+            .page-title {
+                font-size: 20px;
+            }
+
+            .container {
+                padding: 32px 24px;
+            }
+
+            .form-box {
+                padding: 32px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <button class="back-btn" onclick="history.back()">←</button>
+            <h1 class="page-title">Add New Product</h1>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <div class="form-card">
+            <div class="form-box">
+                <!-- Error Box -->
+                <div class="error-box" id="errorBox"></div>
+                
+                <!-- Form -->
+                <form action="{{ url_for('admin.add_product') }}" method="POST" enctype="multipart/form-data" id="productForm">
+                    
+                    <!-- Basic Information -->
+                    <div class="section-header">
+                        <div class="section-title">
+                            <span class="section-icon">📦</span>
+                            Basic Information
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label>Product Name<span class="required">*</span></label>
+                            <input type="text" name="name" required placeholder="e.g., Ashwagandha Capsules">
+                        </div>
+
+                        <div class="form-group">
+                            <label>MRP (₹)<span class="required">*</span></label>
+                            <input type="number" step="0.01" name="mrp" required placeholder="999.00">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Selling Price (₹)<span class="required">*</span></label>
+                            <input type="number" step="0.01" name="price" required placeholder="799.00">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Category<span class="required">*</span></label>
+                            <select name="category" required>
+                                <option value="">Select category</option>
+                                <option value="Immunity Boosters">Immunity Boosters</option>
+                                <option value="Digestive Health">Digestive Health</option>
+                                <option value="Joint & Bone Care">Joint & Bone Care</option>
+                                <option value="Heart Health">Heart Health</option>
+                                <option value="Diabetes Care">Diabetes Care</option>
+                                <option value="Skin & Hair Care">Skin & Hair Care</option>
+                                <option value="Mental Wellness">Mental Wellness</option>
+                                <option value="Respiratory Health">Respiratory Health</option>
+                                <option value="Weight Management">Weight Management</option>
+                                <option value="Women's Health">Women's Health</option>
+                                <option value="Men's Health">Men's Health</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Stock Quantity<span class="required">*</span></label>
+                            <input type="number" name="stock" required placeholder="100">
+                        </div>
+                    </div>
+
+                    <!-- Product Details -->
+                    <div class="section-header">
+                        <div class="section-title">
+                            <span class="section-icon">⭐</span>
+                            Product Details
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Rating (0–5)</label>
+                            <input type="number" step="0.1" min="0" max="5" name="rating" placeholder="4.5">
+                            <span class="helper-text">Product rating out of 5</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Number of Ratings</label>
+                            <input type="number" name="rating_count" placeholder="120">
+                            <span class="helper-text">Total review count</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Delivery Time (days)</label>
+                            <input type="number" name="delivery_days" placeholder="3">
+                            <span class="helper-text">Estimated delivery time</span>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label>Product Description<span class="required">*</span></label>
+                            <textarea name="description" required placeholder="Enter detailed product description...
+
+Key Features:
+• Feature 1
+• Feature 2
+
+Benefits:
+1. Benefit one
+2. Benefit two"></textarea>
+                            <span class="helper-text">Formatting is preserved (line breaks, spacing)</span>
+                        </div>
+                    </div>
+
+                    <!-- Badges -->
+                    <div class="section-header">
+                        <div class="section-title">
+                            <span class="section-icon">🏷️</span>
+                            Product Badges
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label>Add Custom Badges</label>
+                            <div class="badge-input-container">
+                                <input type="text" class="badge-input" id="badgeInput" placeholder="e.g., Bestseller, 20% OFF">
+                                <button type="button" class="add-badge-btn" onclick="addBadge()">Add</button>
+                            </div>
+                            <div class="badge-list" id="badgeList"></div>
+                            <input type="hidden" name="badges" id="badgesHidden">
+                            <span class="helper-text">Highlight special features or offers</span>
+                        </div>
+                    </div>
+
+                    <!-- Images -->
+                    <div class="section-header">
+                        <div class="section-title">
+                            <span class="section-icon">🖼️</span>
+                            Product Images
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label>Upload Images (Exactly 5 Required)<span class="required">*</span></label>
+                            <div class="file-input-wrapper">
+                                <input type="file" name="images" id="imageInput" accept="image/*" multiple required onchange="updateFileInfo()">
+                                <label for="imageInput" class="file-input-label">
+                                    <div class="upload-icon">📁</div>
+                                    <div class="upload-text">Click to upload images</div>
+                                    <div class="upload-subtext">Select exactly 5 high-quality product images</div>
+                                </label>
+                            </div>
+                            <div id="fileInfo"></div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="submit-btn">Add Product to Inventory</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let badges = [];
+
+        function addBadge() {
+            const input = document.getElementById('badgeInput');
+            const badgeText = input.value.trim();
+            
+            if (badgeText && !badges.includes(badgeText)) {
+                badges.push(badgeText);
+                updateBadgeDisplay();
+                input.value = '';
+            }
+        }
+
+        function removeBadge(index) {
+            badges.splice(index, 1);
+            updateBadgeDisplay();
+        }
+
+        function updateBadgeDisplay() {
+            const badgeList = document.getElementById('badgeList');
+            const hiddenInput = document.getElementById('badgesHidden');
+            
+            badgeList.innerHTML = badges.map((badge, index) => `
+                <div class="badge-item">
+                    ${badge}
+                    <span class="remove-badge" onclick="removeBadge(${index})">×</span>
+                </div>
+            `).join('');
+            
+            hiddenInput.value = JSON.stringify(badges);
+        }
+
+        function updateFileInfo() {
+            const input = document.getElementById('imageInput');
+            const fileInfo = document.getElementById('fileInfo');
+            const files = input.files;
+            
+            if (files.length > 0) {
+                if (files.length === 5) {
+                    fileInfo.className = 'file-info success';
+                    fileInfo.innerHTML = `✅ ${files.length} images selected - Perfect!`;
+                } else {
+                    fileInfo.className = 'file-info error';
+                    fileInfo.innerHTML = `⚠️ ${files.length} images selected - Please select exactly 5 images`;
+                }
+            } else {
+                fileInfo.className = '';
+                fileInfo.innerHTML = '';
+            }
+        }
+
+        // Allow Enter key to add badge
+        document.getElementById('badgeInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addBadge();
+            }
+        });
+
+        // Auto-resize textarea
+        const textarea = document.querySelector('textarea[name="description"]');
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.max(140, this.scrollHeight) + 'px';
+        });
+    </script>
+</body>
+</html>

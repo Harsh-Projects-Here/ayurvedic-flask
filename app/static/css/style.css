@@ -1,0 +1,202 @@
+/* =========================
+   RESET & BASE
+========================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f5f7fa;
+    color: #2c3e50;
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+/* =========================
+   TYPOGRAPHY (MOBILE FIRST)
+========================= */
+h1 {
+    font-size: 1.6rem;
+    margin-bottom: 12px;
+}
+
+h2 {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+}
+
+p {
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+}
+
+/* Desktop scaling */
+@media (min-width: 768px) {
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.6rem; }
+    p  { font-size: 1rem; }
+}
+
+/* =========================
+   CONTAINERS
+========================= */
+.container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 0 16px;
+}
+
+/* =========================
+   TOUCH SAFETY
+========================= */
+button,
+a,
+input,
+select,
+textarea {
+    min-height: 44px;
+}
+
+/* =========================
+   IMAGES
+========================= */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* =========================
+   UTILITIES
+========================= */
+.text-center {
+    text-align: center;
+}
+
+.hidden {
+    display: none;
+}
+
+/* AUTH & ACCOUNT */
+.auth-container,
+.account-container,
+.orders-container {
+  max-width: 420px;
+  margin: 30px auto;
+  padding: 20px;
+}
+
+.auth-container h2,
+.account-container h2,
+.orders-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.auth-container input,
+.auth-container button {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 12px;
+  font-size: 16px;
+}
+
+.auth-container button {
+  background: #2e7d32;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+}
+
+.auth-link {
+  text-align: center;
+}
+
+.account-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.account-actions .btn {
+  text-align: center;
+  padding: 12px;
+  background: #2e7d32;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+.account-actions .danger {
+  background: #c62828;
+}
+
+.order-card {
+  border: 1px solid #ddd;
+  padding: 14px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+
+/* MOBILE NAV */
+.navbar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.nav-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .navbar {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
+
+.product-user-panel {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 12px;
+    margin-bottom: 16px;
+    background: #f8faf9;
+    border-radius: 12px;
+}
+
+.panel-btn {
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: #2d7a3e;
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.panel-btn.primary {
+    background: #2563eb;
+}
+
+.panel-btn.danger {
+    background: #dc2626;
+}
+
+.user-greeting {
+    font-weight: 700;
+    padding: 10px;
+    color: #1e5a2d;
+}

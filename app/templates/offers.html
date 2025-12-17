@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Offers - Ayurshop{% endblock %}
+
+{% block content %}
+<section style="padding:60px 20px; background:#f7faf7;">
+    <div class="container">
+
+        <h1 style="text-align:center; color:#2d5016; margin-bottom:20px; font-size:2.4rem;">
+            Special Offers & Discounts
+        </h1>
+
+        <p style="text-align:center; color:#555; margin-bottom:40px; font-size:1.1rem;">
+            Explore amazing deals on your favourite Ayurvedic essentials. Limited-time discounts!
+        </p>
+
+        <div class="offers-grid" style="display:grid; gap:30px; grid-template-columns:repeat(auto-fit,minmax(260px,1fr));">
+
+            <!-- Offer Card Example -->
+            <div style="background:white; border-radius:12px; padding:20px; box-shadow:0 3px 15px rgba(0,0,0,0.1); text-align:center;">
+                <h3 style="color:#2d5016; margin-bottom:10px;">🔥 Flat 25% OFF</h3>
+                <p style="color:#444;">On immunity boosters and herbal supplements</p>
+                <a href="{{ url_for('main.products') }}" style="margin-top:15px; display:inline-block; background:#2d5016; padding:10px 20px; color:white; border-radius:8px; text-decoration:none;">Shop Now</a>
+            </div>
+
+            <div style="background:white; border-radius:12px; padding:20px; box-shadow:0 3px 15px rgba(0,0,0,0.1); text-align:center;">
+                <h3 style="color:#2d5016; margin-bottom:10px;">💚 Buy 1 Get 1 Free</h3>
+                <p style="color:#444;">On selected Ayurvedic oils and balms</p>
+                <a href="{{ url_for('main.products') }}" style="margin-top:15px; display:inline-block; background:#2d5016; padding:10px 20px; color:white; border-radius:8px; text-decoration:none;">Shop Now</a>
+            </div>
+
+        </div>
+    </div>
+</section>
+{% endblock %}

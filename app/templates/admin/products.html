@@ -1,0 +1,767 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Manage Products{% endblock %}
+
+{% block content %}
+
+<style>
+    /* Mobile Menu Toggle Button */
+    .mobile-menu-toggle {
+        display: none;
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1001;
+        background: #6366f1;
+        color: white;
+        border: none;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        font-size: 24px;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease;
+    }
+
+    .mobile-menu-toggle:hover {
+        background: #4f46e5;
+        transform: scale(1.1);
+    }
+
+    /* Side Menu Overlay */
+    .side-menu-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1002;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .side-menu-overlay.active {
+        display: block;
+        opacity: 1;
+    }
+
+    /* Side Menu */
+    .side-menu {
+        display: none;
+        position: fixed;
+        top: 0;
+        right: -300px;
+        width: 280px;
+        height: 100%;
+        background: white;
+        z-index: 1003;
+        box-shadow: -4px 0 12px rgba(0, 0, 0, 0.1);
+        transition: right 0.3s ease;
+        overflow-y: auto;
+    }
+
+    .side-menu.active {
+        display: block;
+        right: 0;
+    }
+
+    .side-menu-header {
+        padding: 24px 20px;
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .side-menu-close {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        font-size: 20px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+
+    .side-menu-close:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: rotate(90deg);
+    }
+
+    .side-menu-greeting {
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .side-menu-items {
+        padding: 20px 0;
+    }
+
+    .side-menu-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 20px;
+        color: #374151;
+        text-decoration: none;
+        font-size: 16px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        border-left: 4px solid transparent;
+    }
+
+    .side-menu-item:hover {
+        background: #f3f4f6;
+        border-left-color: #6366f1;
+        color: #6366f1;
+    }
+
+    .side-menu-item span:first-child {
+        font-size: 20px;
+    }
+
+    /* Page Header */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .page-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #111827;
+        margin: 0;
+    }
+
+    .add-btn {
+        padding: 10px 20px;
+        background: #6366f1;
+        color: white;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 14px;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+    }
+
+    .add-btn:hover {
+        background: #4f46e5;
+        transform: translateY(-1px);
+    }
+
+    /* Stats Bar */
+    .stats-bar {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+
+    .stat-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 16px;
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 4px;
+    }
+
+    .stat-label {
+        font-size: 13px;
+        color: #6b7280;
+        font-weight: 500;
+    }
+
+    /* Product Grid */
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+    }
+
+    .product-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .product-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 0 25px rgba(99, 102, 241, 0.4), 0 12px 24px rgba(0, 0, 0, 0.1);
+        border-color: #6366f1;
+    }
+
+    /* Product Image Section */
+    .product-image-section {
+        position: relative;
+        background: #f9fafb;
+    }
+
+    .main-img {
+        width: 100%;
+        height: 220px;
+        object-fit: cover;
+        display: block;
+    }
+
+    .image-count-badge {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: rgba(0, 0, 0, 0.75);
+        color: white;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .mini-images {
+        display: flex;
+        gap: 6px;
+        padding: 10px;
+        background: white;
+        border-top: 1px solid #e5e7eb;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+    }
+
+    .mini-images::-webkit-scrollbar {
+        height: 4px;
+    }
+
+    .mini-images::-webkit-scrollbar-thumb {
+        background: #d1d5db;
+        border-radius: 2px;
+    }
+
+    .mini-images img {
+        width: 50px;
+        height: 50px;
+        border-radius: 6px;
+        object-fit: cover;
+        border: 1px solid #e5e7eb;
+        flex-shrink: 0;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .mini-images img:hover {
+        transform: scale(1.1);
+        border-color: #6366f1;
+        box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+    }
+
+    /* Product Content */
+    .product-content {
+        padding: 16px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-name {
+        font-size: 16px;
+        font-weight: 600;
+        color: #111827;
+        margin: 0 0 8px 0;
+        line-height: 1.4;
+        word-wrap: break-word;
+    }
+
+    .product-category {
+        font-size: 13px;
+        color: #6b7280;
+        margin-bottom: 8px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .price-section {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+    }
+
+    .product-price {
+        font-size: 20px;
+        font-weight: 700;
+        color: #111827;
+    }
+
+    .product-mrp {
+        font-size: 14px;
+        color: #9ca3af;
+        text-decoration: line-through;
+    }
+
+    .discount-badge {
+        background: #dcfce7;
+        color: #166534;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    /* Stock Badges */
+    .stock-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 12px;
+        margin-bottom: 12px;
+        width: fit-content;
+    }
+
+    .stock-ok {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .stock-low {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .stock-out {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    /* Actions */
+    .actions {
+        display: flex;
+        gap: 8px;
+        margin-top: auto;
+        padding-top: 12px;
+        border-top: 1px solid #f3f4f6;
+    }
+
+    .btn-edit, .btn-delete {
+        flex: 1;
+        padding: 10px 16px;
+        border-radius: 8px;
+        text-decoration: none;
+        color: white;
+        font-size: 13px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .btn-edit {
+        background: #6366f1;
+    }
+
+    .btn-edit:hover {
+        background: #4f46e5;
+        transform: translateY(-1px);
+    }
+
+    .btn-delete {
+        background: #ef4444;
+    }
+
+    .btn-delete:hover {
+        background: #dc2626;
+        transform: translateY(-1px);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+    }
+
+    .empty-icon {
+        font-size: 64px;
+        margin-bottom: 16px;
+        opacity: 0.5;
+    }
+
+    .empty-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+    }
+
+    .empty-text {
+        font-size: 14px;
+        color: #6b7280;
+        margin-bottom: 24px;
+    }
+
+    /* Mobile Optimizations */
+    @media (max-width: 640px) {
+        .mobile-menu-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .page-header {
+            padding-right: 70px;
+        }
+
+        .page-title {
+            font-size: 20px;
+        }
+
+        .add-btn {
+            font-size: 13px;
+            padding: 8px 16px;
+        }
+
+        .product-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .stats-bar {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .stat-card {
+            padding: 12px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+        }
+
+        .main-img {
+            height: 200px;
+        }
+
+        .product-content {
+            padding: 14px;
+        }
+
+        .product-name {
+            font-size: 15px;
+        }
+
+        .product-price {
+            font-size: 18px;
+        }
+
+        .actions {
+            flex-direction: row;
+            gap: 6px;
+        }
+
+        .btn-edit, .btn-delete {
+            font-size: 12px;
+            padding: 9px 12px;
+        }
+
+        .empty-state {
+            padding: 40px 16px;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+        }
+
+        .side-menu {
+            width: 100%;
+            right: -100%;
+        }
+
+        .side-menu.active {
+            right: 0;
+        }
+    }
+
+    /* Tablet Optimizations */
+    @media (min-width: 641px) and (max-width: 1023px) {
+        .product-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .stats-bar {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+
+    /* Desktop Optimizations */
+    @media (min-width: 1024px) {
+        .product-grid {
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        }
+
+        .main-img {
+            height: 240px;
+        }
+    }
+
+    /* Large Desktop */
+    @media (min-width: 1440px) {
+        .product-grid {
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        }
+    }
+
+    /* Loading Animation */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .product-card {
+        animation: fadeInUp 0.3s ease;
+    }
+
+    .product-card:nth-child(1) { animation-delay: 0.05s; }
+    .product-card:nth-child(2) { animation-delay: 0.1s; }
+    .product-card:nth-child(3) { animation-delay: 0.15s; }
+    .product-card:nth-child(4) { animation-delay: 0.2s; }
+    .product-card:nth-child(5) { animation-delay: 0.25s; }
+    .product-card:nth-child(6) { animation-delay: 0.3s; }
+</style>
+
+<!-- Mobile Menu Toggle Button -->
+<button class="mobile-menu-toggle" onclick="toggleSideMenu()">☰</button>
+
+<!-- Side Menu Overlay -->
+<div class="side-menu-overlay" id="sideMenuOverlay" onclick="toggleSideMenu()"></div>
+
+<!-- Side Menu -->
+<div class="side-menu" id="sideMenu">
+    <div class="side-menu-header">
+        <div class="side-menu-greeting">👋 Hi, Shobhit Jha</div>
+        <button class="side-menu-close" onclick="toggleSideMenu()">✕</button>
+    </div>
+    <div class="side-menu-items">
+        <a href="{{ url_for('main.my_orders') }}" class="side-menu-item">
+            <span>📦</span>
+            <span>My Orders</span>
+        </a>
+        <a href="{{ url_for('main.account') }}" class="side-menu-item">
+            <span>👤</span>
+            <span>My Account</span>
+        </a>
+        <a href="{{ url_for('main.logout') }}" class="side-menu-item">
+            <span>🚪</span>
+            <span>Logout</span>
+        </a>
+    </div>
+</div>
+
+<!-- Page Header -->
+<div class="page-header">
+    <h2 class="page-title">Manage Products</h2>
+    <a href="{{ url_for('admin.add_product') }}" class="add-btn">
+        <span>➕</span>
+        <span>Add New Product</span>
+    </a>
+</div>
+
+<!-- Stats Bar -->
+<div class="stats-bar">
+    <div class="stat-card">
+        <div class="stat-value">{{ products|length }}</div>
+        <div class="stat-label">Total Products</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ products|selectattr('stock', 'gt', 0)|list|length }}</div>
+        <div class="stat-label">In Stock</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ products|selectattr('stock', 'eq', 0)|list|length }}</div>
+        <div class="stat-label">Out of Stock</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ products|selectattr('stock', 'le', 3)|selectattr('stock', 'gt', 0)|list|length }}</div>
+        <div class="stat-label">Low Stock</div>
+    </div>
+</div>
+
+<!-- Product Grid -->
+{% if products %}
+<div class="product-grid">
+    {% for p in products %}
+    <div class="product-card">
+        
+        <!-- Image Section -->
+        <div class="product-image-section">
+            {% set main_img = p.images[0] if p.images else 'default.png' %}
+            <img src="{{ url_for('static', filename='images/' ~ main_img) }}" 
+                 class="main-img" 
+                 alt="{{ p.name }}">
+            
+            <div class="image-count-badge">
+                🖼️ {{ p.images|length }} photos
+            </div>
+            
+            <!-- Thumbnails -->
+            {% if p.images|length > 1 %}
+            <div class="mini-images">
+                {% for img in p.images[:5] %}
+                <img src="{{ url_for('static', filename='images/' ~ img) }}" 
+                     alt="Thumbnail {{ loop.index }}"
+                     title="Image {{ loop.index }}">
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Content -->
+        <div class="product-content">
+            <h3 class="product-name">{{ p.name }}</h3>
+            
+            <div class="product-category">
+                <span>📂</span>
+                <span>{{ p.category }}</span>
+            </div>
+
+            <div class="price-section">
+                <span class="product-price">₹{{ p.price }}</span>
+                {% if p.mrp and p.mrp > p.price %}
+                <span class="product-mrp">₹{{ p.mrp }}</span>
+                <span class="discount-badge">
+                    {{ ((p.mrp - p.price) / p.mrp * 100) | round | int }}% OFF
+                </span>
+                {% endif %}
+            </div>
+
+            <!-- Stock Badge -->
+            {% if p.stock == 0 %}
+                <span class="stock-badge stock-out">
+                    <span>⚠️</span>
+                    <span>OUT OF STOCK</span>
+                </span>
+            {% elif p.stock <= 3 %}
+                <span class="stock-badge stock-low">
+                    <span>⏰</span>
+                    <span>Only {{ p.stock }} left</span>
+                </span>
+            {% else %}
+                <span class="stock-badge stock-ok">
+                    <span>✅</span>
+                    <span>In Stock ({{ p.stock }})</span>
+                </span>
+            {% endif %}
+
+            <!-- Actions -->
+            <div class="actions">
+                <a href="{{ url_for('admin.edit_product', product_id=p.id) }}" 
+                   class="btn-edit">
+                    <span>✏️</span>
+                    <span>Edit</span>
+                </a>
+                <a href="{{ url_for('admin.delete_product', product_id=p.id) }}" 
+                   class="btn-delete"
+                   onclick="return confirm('Are you sure you want to delete \'{{ p.name }}\' permanently? This action cannot be undone.');">
+                    <span>🗑️</span>
+                    <span>Delete</span>
+                </a>
+            </div>
+        </div>
+
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+<!-- Empty State -->
+<div class="empty-state">
+    <div class="empty-icon">📦</div>
+    <div class="empty-title">No Products Yet</div>
+    <div class="empty-text">Start by adding your first product to the inventory</div>
+    <a href="{{ url_for('admin.add_product') }}" class="add-btn">
+        <span>➕</span>
+        <span>Add Your First Product</span>
+    </a>
+</div>
+{% endif %}
+
+<script>
+function toggleSideMenu() {
+    const sideMenu = document.getElementById('sideMenu');
+    const overlay = document.getElementById('sideMenuOverlay');
+    
+    sideMenu.classList.toggle('active');
+    overlay.classList.toggle('active');
+}
+
+// Close menu when clicking outside
+document.addEventListener('click', function(event) {
+    const sideMenu = document.getElementById('sideMenu');
+    const menuToggle = document.querySelector('.mobile-menu-toggle');
+    
+    if (!sideMenu.contains(event.target) && !menuToggle.contains(event.target)) {
+        sideMenu.classList.remove('active');
+        document.getElementById('sideMenuOverlay').classList.remove('active');
+    }
+});
+
+// Prevent body scroll when menu is open
+document.getElementById('sideMenuOverlay').addEventListener('transitionend', function() {
+    if (this.classList.contains('active')) {
+        document.body.style.overflow = 'hidden';
+    } else {
+        document.body.style.overflow = '';
+    }
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,599 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Order #{{ order.id }}{% endblock %}
+
+{% block content %}
+<style>
+    .order-detail-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .order-header h1 {
+        font-size: 28px;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0;
+        letter-spacing: -0.02em;
+    }
+
+    .status-badge {
+        padding: 10px 20px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: white;
+        display: inline-block;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .status-badge.status-pending { background: #dc2626; }
+    .status-badge.status-confirmed { background: #2563eb; }
+    .status-badge.status-shipped { background: #f59e0b; }
+    .status-badge.status-dispatched { background: #06b6d4; }
+    .status-badge.status-delivered { background: #16a34a; }
+    .status-badge.status-cancelled { background: #dc2626; }
+
+    .order-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .order-section {
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+        overflow: hidden;
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 20px 24px;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .section-icon {
+        font-size: 20px;
+        width: 28px;
+        text-align: center;
+    }
+
+    .section-header h2 {
+        font-size: 18px;
+        font-weight: 600;
+        color: #0f172a;
+        margin: 0;
+        letter-spacing: -0.01em;
+    }
+
+    .section-body {
+        padding: 24px;
+    }
+
+    .detail-row {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding: 16px 0;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .detail-row:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .detail-row:first-child {
+        padding-top: 0;
+    }
+
+    .detail-row .label {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #64748b;
+        letter-spacing: 0.05em;
+    }
+
+    .detail-row .value {
+        font-size: 15px;
+        color: #0f172a;
+        font-weight: 500;
+        line-height: 1.5;
+    }
+
+    .phone-link,
+    .map-link {
+        color: #2563eb;
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: color 0.2s ease;
+    }
+
+    .phone-link:hover,
+    .map-link:hover {
+        color: #1d4ed8;
+    }
+
+    .items-table {
+        width: 100%;
+    }
+
+    .table-header,
+    .table-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr;
+        gap: 16px;
+        padding: 14px 0;
+        align-items: center;
+    }
+
+    .table-header {
+        font-weight: 600;
+        font-size: 12px;
+        text-transform: uppercase;
+        color: #64748b;
+        letter-spacing: 0.05em;
+        border-bottom: 2px solid #e2e8f0;
+        padding-bottom: 12px;
+    }
+
+    .table-row {
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 15px;
+        color: #0f172a;
+        font-weight: 500;
+    }
+
+    .table-row:last-child {
+        border-bottom: none;
+    }
+
+    .col-qty,
+    .col-price {
+        text-align: right;
+    }
+
+    .order-total {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 0 0 0;
+        margin-top: 20px;
+        border-top: 2px solid #e2e8f0;
+    }
+
+    .total-label {
+        font-size: 16px;
+        font-weight: 600;
+        color: #64748b;
+    }
+
+    .total-value {
+        font-size: 28px;
+        font-weight: 700;
+        color: #0f172a;
+        letter-spacing: -0.02em;
+    }
+
+    .status-actions,
+    .communication-actions {
+        margin-bottom: 32px;
+    }
+
+    .status-actions:last-child,
+    .communication-actions:last-child {
+        margin-bottom: 0;
+    }
+
+    .status-actions h3,
+    .communication-actions h3 {
+        font-size: 14px;
+        font-weight: 600;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin: 0 0 16px 0;
+    }
+
+    .status-buttons {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 12px;
+    }
+
+    .status-action-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 14px 16px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+        color: white;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        text-align: center;
+        min-height: 48px;
+    }
+
+    .status-action-btn span:first-child {
+        font-size: 18px;
+    }
+
+    .confirmed-btn { background: #2563eb; }
+    .shipped-btn { background: #f59e0b; }
+    .dispatched-btn { background: #06b6d4; }
+    .delivered-btn { background: #16a34a; }
+    .cancelled-btn { background: #dc2626; }
+
+    .status-action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    .status-action-btn:active {
+        transform: translateY(0);
+    }
+
+    .action-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 16px 20px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 15px;
+        color: white;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        margin-bottom: 12px;
+        min-height: 52px;
+    }
+
+    .action-btn:last-child {
+        margin-bottom: 0;
+    }
+
+    .action-btn span:first-child {
+        font-size: 20px;
+    }
+
+    .whatsapp-btn {
+        background: #25D366;
+    }
+
+    .invoice-btn {
+        background: #0f172a;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    .action-btn:active {
+        transform: translateY(0);
+    }
+
+    /* Desktop layout */
+    @media (min-width: 768px) {
+        .order-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .actions-section {
+            grid-column: 1 / -1;
+        }
+
+        .detail-row {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .detail-row .value {
+            text-align: right;
+            max-width: 60%;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .order-header h1 {
+            font-size: 32px;
+        }
+
+        .section-header h2 {
+            font-size: 20px;
+        }
+    }
+
+    /* Mobile optimizations */
+    @media (max-width: 767px) {
+        .order-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .order-header h1 {
+            font-size: 24px;
+        }
+
+        .status-badge {
+            align-self: flex-start;
+            font-size: 12px;
+            padding: 8px 16px;
+        }
+
+        .section-body {
+            padding: 20px;
+        }
+
+        .table-header {
+            display: none;
+        }
+
+        .table-row {
+            grid-template-columns: 1fr;
+            gap: 10px;
+            padding: 16px;
+            background: #f8fafc;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .table-row .col-product::before {
+            content: "Product: ";
+            font-weight: 600;
+            color: #64748b;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .table-row .col-qty::before {
+            content: "Quantity: ";
+            font-weight: 600;
+            color: #64748b;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .table-row .col-price::before {
+            content: "Price: ";
+            font-weight: 600;
+            color: #64748b;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .col-qty,
+        .col-price {
+            text-align: left;
+        }
+
+        .status-buttons {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .status-action-btn {
+            padding: 14px 16px;
+        }
+
+        .order-total {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .total-value {
+            font-size: 24px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .order-header h1 {
+            font-size: 22px;
+        }
+
+        .section-header {
+            padding: 16px 20px;
+        }
+
+        .section-body {
+            padding: 16px;
+        }
+
+        .detail-row {
+            padding: 12px 0;
+        }
+    }
+
+    /* Accessibility */
+    .status-action-btn:focus-visible,
+    .action-btn:focus-visible {
+        outline: 2px solid #4f46e5;
+        outline-offset: 2px;
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+        .status-action-btn,
+        .action-btn {
+            transition: none;
+        }
+        
+        .status-action-btn:hover,
+        .action-btn:hover {
+            transform: none;
+        }
+    }
+</style>
+
+<div class="order-detail-container">
+    <div class="order-header">
+        <h1>Order #{{ order.id }}</h1>
+        <span class="status-badge status-{{ order.status | lower }}">
+            {{ order.status }}
+        </span>
+    </div>
+
+    <div class="order-grid">
+        <div class="order-section customer-section">
+            <div class="section-header">
+                <span class="section-icon">👤</span>
+                <h2>Customer Details</h2>
+            </div>
+            <div class="section-body">
+                <div class="detail-row">
+                    <span class="label">Name</span>
+                    <span class="value">{{ order.name }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Phone</span>
+                    <span class="value">
+                        <a href="tel:{{ order.phone }}" class="phone-link">
+                            📞 {{ order.phone }}
+                        </a>
+                    </span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Address</span>
+                    <span class="value">{{ order.address }}</span>
+                </div>
+                {% if order.landmark %}
+                <div class="detail-row">
+                    <span class="label">Landmark</span>
+                    <span class="value">{{ order.landmark }}</span>
+                </div>
+                {% endif %}
+                {% if order.map_link %}
+                <div class="detail-row">
+                    <span class="label">Location</span>
+                    <span class="value">
+                        <a href="{{ order.map_link }}" target="_blank" class="map-link">
+                            📍 View on Google Maps
+                        </a>
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="order-section items-section">
+            <div class="section-header">
+                <span class="section-icon">🛍️</span>
+                <h2>Order Items</h2>
+            </div>
+            <div class="section-body">
+                <div class="items-table">
+                    <div class="table-header">
+                        <div class="col-product">Product</div>
+                        <div class="col-qty">Qty</div>
+                        <div class="col-price">Price</div>
+                    </div>
+                    {% for item in order["items"] %}
+                    <div class="table-row">
+                        <div class="col-product">{{ item["name"] }}</div>
+                        <div class="col-qty">{{ item["quantity"] }}</div>
+                        <div class="col-price">₹{{ item["price"] }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="order-total">
+                    <span class="total-label">Total Amount</span>
+                    <span class="total-value">₹{{ order.total }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="order-section actions-section">
+            <div class="section-header">
+                <span class="section-icon">⚡</span>
+                <h2>Order Actions</h2>
+            </div>
+            <div class="section-body">
+                <div class="status-actions">
+                    <h3>Update Status</h3>
+                    <div class="status-buttons">
+                        <form method="POST" action="{{ url_for('admin.update_order_status', order_id=order.id) }}">
+    <input type="hidden" name="status" value="CONFIRMED">
+    <button type="submit" class="status-action-btn confirmed-btn">
+        <span>✓</span> <span>Confirm</span>
+    </button>
+</form>
+
+<form method="POST" action="{{ url_for('admin.update_order_status', order_id=order.id) }}">
+    <input type="hidden" name="status" value="SHIPPED">
+    <button type="submit" class="status-action-btn shipped-btn">
+        <span>📦</span> <span>Shipped</span>
+    </button>
+</form>
+
+<form method="POST" action="{{ url_for('admin.update_order_status', order_id=order.id) }}">
+    <input type="hidden" name="status" value="DISPATCHED">
+    <button type="submit" class="status-action-btn dispatched-btn">
+        <span>🚚</span> <span>Dispatched</span>
+    </button>
+</form>
+
+<form method="POST" action="{{ url_for('admin.update_order_status', order_id=order.id) }}">
+    <input type="hidden" name="status" value="DELIVERED">
+    <button type="submit" class="status-action-btn delivered-btn">
+        <span>✅</span> <span>Delivered</span>
+    </button>
+</form>
+
+<form method="POST" action="{{ url_for('admin.update_order_status', order_id=order.id) }}"
+      onsubmit="return confirm('Cancel this order?');">
+    <input type="hidden" name="status" value="CANCELLED">
+    <button type="submit" class="status-action-btn cancelled-btn">
+        <span>✖</span> <span>Cancelled</span>
+    </button>
+</form>
+
+                  
+                    </div>
+                </div>
+
+                <div class="communication-actions">
+                    <h3>Communication</h3>
+                    <a href="{{ url_for('admin.send_whatsapp_update', order_id=order.id) }}" class="action-btn whatsapp-btn">
+                        <span>💬</span> <span>Send WhatsApp Update</span>
+                    </a>
+                    <a href="{{ url_for('admin.view_invoice', order_id=order.id) }}" class="action-btn invoice-btn">
+                        <span>📄</span> <span>View Invoice</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

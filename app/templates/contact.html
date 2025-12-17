@@ -1,0 +1,795 @@
+{% extends "base.html" %}
+{% block title %}Contact Us - Ayurshop{% endblock %}
+{% block content %}
+
+<style>
+/* Loading Screen */
+.loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #2d7a3e 0%, #1e5a2d 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.loading-screen.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.loader {
+  width: 60px;
+  height: 60px;
+  border: 5px solid rgba(255,255,255,0.2);
+  border-top: 5px solid #25D366;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  color: white;
+  font-size: 1.2rem;
+  margin-top: 20px;
+  font-weight: 600;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Hero Section */
+.contact-hero {
+  background: linear-gradient(135deg, #2d7a3e 0%, #1e5a2d 100%);
+  padding: 80px 20px 60px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.contact-hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  animation: float 8s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-30px, 30px); }
+}
+
+.contact-hero h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  color: white;
+  margin-bottom: 20px;
+  font-weight: 800;
+  position: relative;
+  z-index: 2;
+  animation: slideDown 0.8s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.contact-hero p {
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  color: rgba(255,255,255,0.9);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.7;
+  position: relative;
+  z-index: 2;
+  animation: slideUp 0.8s ease 0.2s backwards;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Philosophy Section */
+.philosophy-section {
+  padding: 80px 20px;
+  background: linear-gradient(to bottom, #ffffff 0%, #f0f7f2 100%);
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.philosophy-card {
+  background: white;
+  border-radius: 20px;
+  padding: 50px 40px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+  text-align: center;
+  animation: fadeIn 1s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.philosophy-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(45, 122, 62, 0.05), transparent);
+  transition: left 0.8s ease;
+}
+
+.philosophy-card:hover::before {
+  left: 100%;
+}
+
+.philosophy-icon {
+  font-size: 4rem;
+  margin-bottom: 25px;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.philosophy-card h2 {
+  font-size: clamp(1.8rem, 4vw, 2.3rem);
+  color: #2d7a3e;
+  margin-bottom: 20px;
+  font-weight: 800;
+}
+
+.philosophy-card p {
+  color: #555;
+  font-size: 1.05rem;
+  line-height: 1.8;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Contact Methods Section */
+.methods-section {
+  padding: 80px 20px;
+  background: white;
+}
+
+.section-title {
+  text-align: center;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  color: #2d7a3e;
+  margin-bottom: 50px;
+  font-weight: 800;
+  animation: slideDown 0.8s ease;
+}
+
+.methods-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+  margin-bottom: 50px;
+}
+
+.method-card {
+  background: linear-gradient(135deg, #f0f7f2 0%, #e8f5e9 100%);
+  padding: 40px 30px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  transition: all 0.4s ease;
+  animation: fadeInUp 0.8s ease forwards;
+  opacity: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.method-card:nth-child(1) { animation-delay: 0.1s; }
+.method-card:nth-child(2) { animation-delay: 0.2s; }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.method-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(37, 211, 102, 0.1) 0%, transparent 70%);
+  transition: transform 0.6s ease;
+}
+
+.method-card:hover::before {
+  transform: rotate(180deg);
+}
+
+.method-card:hover {
+  transform: translateY(-10px) scale(1.03);
+  box-shadow: 0 20px 50px rgba(45, 122, 62, 0.2);
+}
+
+.method-icon {
+  font-size: 3.5rem;
+  margin-bottom: 20px;
+  display: inline-block;
+  position: relative;
+  z-index: 2;
+}
+
+.method-card h3 {
+  color: #2d7a3e;
+  font-size: 1.8rem;
+  margin-bottom: 15px;
+  font-weight: 700;
+  position: relative;
+  z-index: 2;
+}
+
+.method-card .contact-detail {
+  color: #555;
+  font-size: 1.15rem;
+  margin-bottom: 10px;
+  font-weight: 600;
+  position: relative;
+  z-index: 2;
+}
+
+.method-card a {
+  color: #25D366;
+  text-decoration: none;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 2;
+}
+
+.method-card a:hover {
+  color: #1ea952;
+  text-decoration: underline;
+}
+
+.method-card p {
+  color: #666;
+  font-size: 0.95rem;
+  margin-top: 15px;
+  line-height: 1.6;
+  position: relative;
+  z-index: 2;
+}
+
+/* Location & Hours Section */
+.info-section {
+  padding: 80px 20px;
+  background: linear-gradient(to bottom, #f0f7f2 0%, #ffffff 100%);
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+}
+
+.info-card {
+  background: white;
+  padding: 40px 30px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.8s ease forwards;
+  opacity: 0;
+}
+
+.info-card:nth-child(1) { animation-delay: 0.2s; }
+.info-card:nth-child(2) { animation-delay: 0.4s; }
+
+.info-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 40px rgba(45, 122, 62, 0.15);
+}
+
+.info-icon {
+  font-size: 3rem;
+  margin-bottom: 20px;
+  display: inline-block;
+}
+
+.info-card h3 {
+  color: #2d7a3e;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+.info-card p {
+  color: #555;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  margin-bottom: 10px;
+}
+
+.info-card strong {
+  color: #2d7a3e;
+  font-weight: 600;
+}
+
+/* Support Process Section */
+.process-section {
+  padding: 80px 20px;
+  background: linear-gradient(135deg, #2d7a3e 0%, #1e5a2d 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.process-section::after {
+  content: '';
+  position: absolute;
+  bottom: -50%;
+  right: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+  animation: float 10s ease-in-out infinite reverse;
+}
+
+.process-title {
+  text-align: center;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  color: white;
+  margin-bottom: 50px;
+  font-weight: 800;
+  position: relative;
+  z-index: 2;
+}
+
+.process-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 25px;
+  position: relative;
+  z-index: 2;
+}
+
+.step-card {
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 15px;
+  padding: 30px 25px;
+  text-align: center;
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.8s ease forwards;
+  opacity: 0;
+}
+
+.step-card:nth-child(1) { animation-delay: 0.1s; }
+.step-card:nth-child(2) { animation-delay: 0.2s; }
+.step-card:nth-child(3) { animation-delay: 0.3s; }
+.step-card:nth-child(4) { animation-delay: 0.4s; }
+.step-card:nth-child(5) { animation-delay: 0.5s; }
+
+.step-card:hover {
+  transform: translateY(-8px);
+  background: rgba(255,255,255,0.15);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+}
+
+.step-number {
+  display: inline-block;
+  width: 50px;
+  height: 50px;
+  background: #25D366;
+  color: white;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 50px;
+  margin-bottom: 15px;
+}
+
+.step-card h4 {
+  color: #25D366;
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.step-card p {
+  color: rgba(255,255,255,0.9);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* Commitment Section */
+.commitment-section {
+  padding: 80px 20px;
+  background: white;
+}
+
+.commitment-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+}
+
+.commitment-item {
+  background: linear-gradient(135deg, #f0f7f2 0%, #e8f5e9 100%);
+  padding: 30px 25px;
+  border-radius: 15px;
+  border-left: 5px solid #25D366;
+  transition: all 0.3s ease;
+  animation: fadeInLeft 0.8s ease forwards;
+  opacity: 0;
+}
+
+.commitment-item:nth-child(1) { animation-delay: 0.1s; }
+.commitment-item:nth-child(2) { animation-delay: 0.2s; }
+.commitment-item:nth-child(3) { animation-delay: 0.3s; }
+.commitment-item:nth-child(4) { animation-delay: 0.4s; }
+.commitment-item:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes fadeInLeft {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.commitment-item:hover {
+  transform: translateX(10px);
+  box-shadow: 0 10px 30px rgba(45, 122, 62, 0.2);
+  border-left-width: 8px;
+}
+
+.commitment-item h4 {
+  color: #2d7a3e;
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.commitment-item p {
+  color: #555;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+/* CTA Section */
+.cta-section {
+  padding: 80px 20px;
+  background: linear-gradient(135deg, #f0f7f2 0%, #e8f5e9 100%);
+  text-align: center;
+}
+
+.cta-content {
+  max-width: 700px;
+  margin: 0 auto;
+  animation: slideUp 0.8s ease;
+}
+
+.cta-content h2 {
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  color: #2d7a3e;
+  margin-bottom: 20px;
+  font-weight: 800;
+}
+
+.cta-content p {
+  font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 30px;
+  line-height: 1.7;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.cta-button {
+  display: inline-block;
+  background: linear-gradient(135deg, #25D366 0%, #1ea952 100%);
+  color: white;
+  padding: 16px 40px;
+  border-radius: 50px;
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 700;
+  box-shadow: 0 10px 30px rgba(37, 211, 102, 0.4);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.cta-button:hover::before {
+  width: 400px;
+  height: 400px;
+}
+
+.cta-button:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 15px 40px rgba(37, 211, 102, 0.5);
+}
+
+.cta-button-secondary {
+  background: transparent;
+  border: 2px solid #2d7a3e;
+  color: #2d7a3e;
+  box-shadow: 0 5px 20px rgba(45, 122, 62, 0.2);
+}
+
+.cta-button-secondary:hover {
+  background: #2d7a3e;
+  color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .contact-hero,
+  .philosophy-section,
+  .methods-section,
+  .info-section,
+  .process-section,
+  .commitment-section,
+  .cta-section {
+    padding: 50px 15px;
+  }
+
+  .philosophy-card {
+    padding: 35px 25px;
+  }
+
+  .methods-grid,
+  .info-grid,
+  .process-steps,
+  .commitment-grid {
+    gap: 20px;
+  }
+
+  .cta-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cta-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .method-card,
+  .info-card,
+  .step-card,
+  .commitment-item {
+    padding: 25px 20px;
+  }
+}
+</style>
+
+<!-- Loading Screen -->
+<div class="loading-screen" id="loadingScreen">
+  <div class="loader"></div>
+  <div class="loading-text">Loading Contact Info...</div>
+</div>
+
+<!-- Hero Section -->
+<section class="contact-hero">
+  <h1>We're Here to Help</h1>
+  <p>Contact Ayurshop anytime for support, guidance, or product inquiries. Your well-being is our priority.</p>
+</section>
+
+<!-- Philosophy Section -->
+<section class="philosophy-section">
+  <div class="container">
+    <div class="philosophy-card">
+      <div class="philosophy-icon">💚</div>
+      <h2>Our Customer Support Philosophy</h2>
+      <p>
+        Ayurveda focuses on balance and care, and Ayurshop follows the same principle in customer service. We believe every customer deserves timely responses, clear communication, and dependable assistance. That's why we keep our contact system simple—no complicated forms, no unnecessary waiting, and no automated barriers. When you reach out, you get direct human support that prioritizes your problem.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Contact Methods -->
+<section class="methods-section">
+  <div class="container">
+    <h2 class="section-title">How to Reach Us</h2>
+    <div class="methods-grid">
+      <div class="method-card">
+        <div class="method-icon">📞</div>
+        <h3>Phone Support</h3>
+        <p class="contact-detail"><a href="tel:+918340106698">+91 83401 06698</a></p>
+        <p>This is the fastest way to get help. Call for order assistance, product recommendations, or replacement requests. Calls are answered during working hours, and missed calls are returned promptly.</p>
+      </div>
+      
+      <div class="method-card">
+        <div class="method-icon">✉️</div>
+        <h3>Email Support</h3>
+        <p class="contact-detail"><a href="mailto:support@ayurshop.in">support@ayurshop.in</a></p>
+        <p>For detailed queries, document submissions (such as damaged product photos), or written communication. We typically respond within 24 hours.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Location & Hours -->
+<section class="info-section">
+  <div class="container">
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="info-icon">📍</div>
+        <h3>Shop Address</h3>
+        <p><strong>Chadubathan, Jharkhand, India</strong></p>
+        <p>This is our primary operating location where we manage stocking, packaging, and dispatch.</p>
+        <p style="margin-top: 20px;"><strong>Home Delivery Coverage:</strong> We deliver throughout multiple local areas and towns surrounding Chadubathan.</p>
+      </div>
+      
+      <div class="info-card">
+        <div class="info-icon">🕒</div>
+        <h3>Working Hours</h3>
+        <p><strong>Monday to Saturday:</strong><br>9:00 AM – 7:00 PM</p>
+        <p style="margin-top: 15px;"><strong>Sunday:</strong><br>Closed</p>
+        <p style="margin-top: 20px;">These timings ensure you can reach us throughout the day for quick support or order placement.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Support Process -->
+<section class="process-section">
+  <div class="container">
+    <h2 class="process-title">Customer Support Process</h2>
+    <div class="process-steps">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <h4>Contact Us</h4>
+        <p>Call or message us on the official phone number</p>
+      </div>
+      
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <h4>Share Query</h4>
+        <p>Order issue, product doubt, refund request, etc.</p>
+      </div>
+      
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <h4>Get Solution</h4>
+        <p>Our team provides immediate solution or starts follow-up</p>
+      </div>
+      
+      <div class="step-card">
+        <div class="step-number">4</div>
+        <h4>Replacement</h4>
+        <p>Request replacement for damaged items within 24 hours</p>
+      </div>
+      
+      <div class="step-card">
+        <div class="step-number">5</div>
+        <h4>Track Updates</h4>
+        <p>Get real-time delivery updates anytime</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Service Commitment -->
+<section class="commitment-section">
+  <div class="container">
+    <h2 class="section-title">Our Service Commitment</h2>
+    <div class="commitment-grid">
+      <div class="commitment-item">
+        <h4>✓ Genuine Products</h4>
+        <p>Authentic Ayurvedic products from trusted brands</p>
+      </div>
+      
+      <div class="commitment-item">
+        <h4>✓ Fast Delivery</h4>
+        <p>Swift and reliable delivery service</p>
+      </div>
+      
+      <div class="commitment-item">
+        <h4>✓ Easy Replacements</h4>
+        <p>Quick replacements for damaged products</p>
+      </div>
+      
+      <div class="commitment-item">
+        <h4>✓ Expert Guidance</h4>
+        <p>Helpful advice for choosing the right remedy</p>
+      </div>
+      
+      <div class="commitment-item">
+        <h4>✓ Transparent Pricing</h4>
+        <p>No hidden charges, honest pricing always</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+  <div class="cta-content">
+    <h2>Ready to Experience Authentic Ayurveda?</h2>
+    <p>Ayurshop believes that good communication builds trust. Reach out whenever you need assistance—no hesitation, no delays. Your well-being is our responsibility.</p>
+    <div class="cta-buttons">
+      <a href="tel:+918340106698" class="cta-button">Call Now</a>
+      <a href="{{ url_for('main.products') }}" class="cta-button cta-button-secondary">Browse Products</a>
+    </div>
+  </div>
+</section>
+
+<script>
+// Loading Screen
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    document.getElementById('loadingScreen').classList.add('hidden');
+  }, 1500);
+});
+
+// Intersection Observer for scroll animations
+const observerOptions = {
+  threshold: 0.1,
+  rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver(function(entries) {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.style.animationPlayState = 'running';
+    }
+  });
+}, observerOptions);
+
+// Observe all animated elements
+document.querySelectorAll('.method-card, .info-card, .step-card, .commitment-item').forEach(el => {
+  observer.observe(el);
+});
+</script>
+
+{% endblock %}

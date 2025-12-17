@@ -1,0 +1,1125 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout | AyurShop{% endblock %}
+{% block bottom_nav %}{% endblock %}
+
+{% block content %}
+
+<style>
+/* ===== VARIABLES ===== */
+:root {
+    --primary: #2d6a4f;
+    --primary-light: #52b788;
+    --primary-dark: #1b4332;
+    --accent: #95d5b2;
+    --secondary: #2563eb;
+    --text-dark: #1a1a1a;
+    --text-medium: #333;
+    --text-light: #6b7280;
+    --border: #e0e0e0;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #dc3545;
+    --bg-light: #f8f9fa;
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.1);
+    --shadow-lg: 0 8px 24px rgba(45,106,79,0.15);
+    --glow: 0 0 20px rgba(82,183,136,0.3);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9f5f0 100%);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ===== CHECKOUT CONTAINER ===== */
+.checkout-container {
+    max-width: 900px;
+    margin: 20px auto;
+    background: #ffffff;
+    padding: 32px;
+    border-radius: 20px;
+    box-shadow: var(--shadow-lg);
+    border: 2px solid var(--border);
+    animation: fadeIn 0.6s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== PROGRESS INDICATOR ===== */
+.progress-steps {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    position: relative;
+}
+
+.progress-steps::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--border);
+    z-index: 0;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    z-index: 1;
+    flex: 1;
+}
+
+.step-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: white;
+    border: 3px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--text-light);
+    transition: var(--transition);
+    box-shadow: var(--shadow-sm);
+}
+
+.step.active .step-circle {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    border-color: var(--primary);
+    color: white;
+    transform: scale(1.15);
+    box-shadow: 0 4px 16px rgba(45,106,79,0.3), var(--glow);
+}
+
+.step.completed .step-circle {
+    background: var(--success);
+    border-color: var(--success);
+    color: white;
+}
+
+.step-label {
+    font-size: 13px;
+    color: var(--text-light);
+    font-weight: 600;
+    text-align: center;
+}
+
+.step.active .step-label {
+    color: var(--text-dark);
+    font-weight: 700;
+}
+
+/* ===== HEADER ===== */
+.checkout-header {
+    font-size: clamp(24px, 5vw, 32px);
+    font-weight: 800;
+    color: var(--text-dark);
+    margin-bottom: 10px;
+    letter-spacing: -0.5px;
+}
+
+.checkout-subheader {
+    font-size: 15px;
+    color: var(--text-light);
+    margin-bottom: 32px;
+    font-weight: 500;
+}
+
+/* ===== TRUST BADGES ===== */
+.trust-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px;
+    margin-bottom: 32px;
+    padding: 24px;
+    background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+    border-radius: 16px;
+    border: 2px solid #d1fae5;
+    box-shadow: var(--shadow-sm);
+}
+
+.trust-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--text-dark);
+    font-weight: 600;
+    padding: 8px;
+    border-radius: 10px;
+    transition: var(--transition);
+}
+
+.trust-badge:hover {
+    background: white;
+    transform: translateX(4px);
+}
+
+.trust-badge i {
+    font-size: 20px;
+    color: var(--primary);
+}
+
+/* ===== TOTAL BOX ===== */
+.total-box {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    padding: 24px;
+    border-radius: 16px;
+    font-size: 20px;
+    margin-bottom: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 8px 20px rgba(45,106,79,0.3), var(--glow);
+    color: white;
+    font-weight: 600;
+}
+
+.total-box strong {
+    font-size: 32px;
+    font-weight: 900;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* ===== FORM SECTIONS ===== */
+.form-section {
+    margin-bottom: 32px;
+    padding: 24px;
+    background: linear-gradient(135deg, #fafafa 0%, #ffffff 100%);
+    border-radius: 16px;
+    border: 2px solid var(--border);
+    transition: var(--transition);
+}
+
+.form-section:hover {
+    border-color: var(--primary-light);
+    box-shadow: var(--shadow-md);
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.section-title i {
+    color: var(--primary);
+    font-size: 22px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.form-grid input,
+.form-grid textarea,
+.form-grid select {
+    width: 100%;
+    padding: 16px;
+    font-size: 15px;
+    border-radius: 12px;
+    border: 2px solid var(--border);
+    transition: var(--transition);
+    font-family: inherit;
+    background: white;
+    font-weight: 500;
+}
+
+.form-grid input:focus,
+.form-grid textarea:focus,
+.form-grid select:focus {
+    outline: none;
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 4px rgba(82, 183, 136, 0.15), var(--shadow-sm);
+}
+
+textarea { 
+    resize: none; 
+}
+
+.full { 
+    grid-column: 1 / -1; 
+}
+
+.input-helper {
+    font-size: 13px;
+    color: var(--text-light);
+    margin-top: 8px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.input-helper i {
+    color: var(--primary);
+}
+
+/* ===== LOCATION SECTION ===== */
+.location-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--secondary) 0%, #1d4ed8 100%);
+    color: #fff;
+    border: none;
+    padding: 18px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: var(--transition);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.location-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.location-btn:active::before {
+    width: 400px;
+    height: 400px;
+}
+
+.location-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(37, 99, 235, 0.4);
+}
+
+.location-btn:active {
+    transform: translateY(0);
+}
+
+.location-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.location-btn.loading {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+}
+
+.location-btn.success {
+    background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+}
+
+.location-status {
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg-light);
+    color: var(--text-light);
+    border: 2px solid var(--border);
+}
+
+.location-status.captured {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    color: var(--success);
+    border: 2px solid #86efac;
+    animation: slideIn 0.4s ease;
+}
+
+.location-status.warning {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #92400e;
+    border: 2px solid #fbbf24;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== PAYMENT METHOD ===== */
+.payment-option {
+    position: relative;
+}
+
+.payment-option select {
+    appearance: none;
+    background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 9L1 4h10z'/%3E%3C/svg%3E") no-repeat right 16px center;
+    padding-right: 40px;
+}
+
+.payment-icons {
+    display: flex;
+    gap: 16px;
+    margin-top: 14px;
+    padding: 16px;
+    background: linear-gradient(135deg, #fafafa 0%, #ffffff 100%);
+    border-radius: 10px;
+    border: 2px solid var(--border);
+}
+
+.payment-icon-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--text-dark);
+    font-weight: 600;
+}
+
+.payment-icon-item i {
+    font-size: 18px;
+    color: var(--primary);
+}
+
+/* ===== WHATSAPP CTA ===== */
+.cta-container {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    padding: 24px 0;
+    margin: 32px -32px -32px -32px;
+    border-top: 2px solid var(--border);
+    z-index: 10;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+}
+
+.place-btn {
+    width: calc(100% - 64px);
+    margin: 0 32px;
+    padding: 20px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    font-size: 18px;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    transition: var(--transition);
+    box-shadow: 0 6px 20px rgba(45,106,79,0.3), var(--glow);
+    position: relative;
+    overflow: hidden;
+}
+
+.place-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.place-btn:active::before {
+    width: 600px;
+    height: 600px;
+}
+
+.place-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 28px rgba(45,106,79,0.4), var(--glow);
+}
+
+.place-btn:active {
+    transform: translateY(0);
+}
+
+.place-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.place-btn i {
+    font-size: 24px;
+}
+
+.cta-reassurance {
+    text-align: center;
+    font-size: 14px;
+    color: var(--text-light);
+    margin-top: 14px;
+    font-weight: 500;
+}
+
+.cta-reassurance i {
+    color: var(--success);
+}
+
+/* ===== WHATSAPP HIGHLIGHT BOX ===== */
+.whatsapp-info {
+    background: linear-gradient(135deg, #dcfce7 0%, #f0fdf4 100%);
+    border: 2px solid var(--primary);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: var(--shadow-md);
+    transition: var(--transition);
+}
+
+.whatsapp-info:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.whatsapp-info i {
+    font-size: 36px;
+    color: var(--primary);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.whatsapp-info-text {
+    flex: 1;
+}
+
+.whatsapp-info-text strong {
+    display: block;
+    font-size: 16px;
+    color: var(--text-dark);
+    margin-bottom: 6px;
+    font-weight: 700;
+}
+
+.whatsapp-info-text small {
+    font-size: 14px;
+    color: var(--text-medium);
+    font-weight: 500;
+}
+
+/* ===== LOADING SPINNER ===== */
+.spinner {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 3px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ===== NOTIFICATION MODAL ===== */
+.notification-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.3s ease;
+}
+
+.notification-overlay.show {
+    display: flex;
+}
+
+.notification-modal {
+    background: white;
+    border-radius: 20px;
+    padding: 32px;
+    max-width: 420px;
+    margin: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    animation: slideUp 0.3s ease;
+    border: 2px solid var(--border);
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.notification-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, var(--warning) 0%, #f59e0b 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    box-shadow: 0 8px 24px rgba(245, 158, 11, 0.3);
+}
+
+.notification-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text-dark);
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.notification-message {
+    font-size: 15px;
+    color: var(--text-medium);
+    line-height: 1.6;
+    text-align: center;
+    margin-bottom: 24px;
+    font-weight: 500;
+}
+
+.notification-buttons {
+    display: flex;
+    gap: 12px;
+}
+
+.notification-btn {
+    flex: 1;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+    border: none;
+}
+
+.notification-btn.primary {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(45,106,79,0.3);
+}
+
+.notification-btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(45,106,79,0.4);
+}
+
+.notification-btn.secondary {
+    background: transparent;
+    color: var(--text-medium);
+    border: 2px solid var(--border);
+}
+
+.notification-btn.secondary:hover {
+    background: var(--bg-light);
+}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width: 600px) {
+    .checkout-container {
+        padding: 20px;
+        border-radius: 0;
+        margin: 0;
+    }
+    
+    .form-section {
+        padding: 20px;
+    }
+    
+    .form-grid { 
+        grid-template-columns: 1fr; 
+    }
+    
+    .trust-section {
+        grid-template-columns: 1fr;
+        padding: 20px;
+    }
+    
+    .progress-steps {
+        margin-bottom: 32px;
+    }
+    
+    .step-circle {
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
+    }
+    
+    .step-label {
+        font-size: 11px;
+    }
+    
+    .checkout-header {
+        font-size: 24px;
+    }
+    
+    .total-box {
+        font-size: 18px;
+        padding: 20px;
+    }
+    
+    .total-box strong {
+        font-size: 26px;
+    }
+    
+    .cta-container {
+        padding: 20px 0;
+        margin: 24px -20px -20px -20px;
+    }
+    
+    .place-btn {
+        width: calc(100% - 40px);
+        margin: 0 20px;
+        padding: 18px;
+        font-size: 16px;
+    }
+    
+    .notification-modal {
+        padding: 28px;
+        margin: 16px;
+    }
+    
+    .notification-icon {
+        width: 70px;
+        height: 70px;
+        font-size: 36px;
+    }
+    
+    .notification-title {
+        font-size: 20px;
+    }
+    
+    .notification-message {
+        font-size: 14px;
+    }
+    
+    .payment-icons {
+        flex-direction: column;
+    }
+}
+</style>
+
+<!-- Font Awesome CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- NOTIFICATION MODAL -->
+<div class="notification-overlay" id="locationNotification">
+    <div class="notification-modal">
+        <div class="notification-icon">📍</div>
+        <h3 class="notification-title">Location Access Required</h3>
+        <p class="notification-message">
+            We need your location to ensure accurate delivery. Please allow location access when prompted by your browser.
+        </p>
+        <div class="notification-buttons">
+            <button class="notification-btn secondary" onclick="closeNotification()">Cancel</button>
+            <button class="notification-btn primary" onclick="proceedWithLocation()">Allow Location</button>
+        </div>
+    </div>
+</div>
+
+<div class="checkout-container">
+
+    <!-- PROGRESS INDICATOR -->
+    <div class="progress-steps">
+        <div class="step completed">
+            <div class="step-circle">✓</div>
+            <div class="step-label">Cart</div>
+        </div>
+        <div class="step active">
+            <div class="step-circle">2</div>
+            <div class="step-label">Address</div>
+        </div>
+        <div class="step">
+            <div class="step-circle">3</div>
+            <div class="step-label">Payment</div>
+        </div>
+        <div class="step">
+            <div class="step-circle">4</div>
+            <div class="step-label">Confirm</div>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <div class="checkout-header">Complete Your Order</div>
+    <div class="checkout-subheader">Fill in your details to receive your Ayurvedic products</div>
+
+    <!-- TRUST BADGES -->
+    <div class="trust-section">
+        <div class="trust-badge">
+            <i class="fas fa-leaf"></i>
+            <span>100% Ayurvedic</span>
+        </div>
+        <div class="trust-badge">
+            <i class="fas fa-truck"></i>
+            <span>Local Delivery</span>
+        </div>
+        <div class="trust-badge">
+            <i class="fab fa-whatsapp"></i>
+            <span>WhatsApp Confirm</span>
+        </div>
+        <div class="trust-badge">
+            <i class="fas fa-shield-alt"></i>
+            <span>Safe & Secure</span>
+        </div>
+    </div>
+
+    <!-- TOTAL BOX -->
+    <div class="total-box">
+        <span>Total Amount:</span>
+        <strong>₹{{ total }}</strong>
+    </div>
+
+    <!-- WHATSAPP INFO -->
+    <div class="whatsapp-info">
+        <i class="fab fa-whatsapp"></i>
+        <div class="whatsapp-info-text">
+            <strong>Order Confirmation via WhatsApp</strong>
+            <small>You'll receive instant confirmation and can chat with us directly</small>
+        </div>
+    </div>
+
+    <form id="checkoutForm">
+
+        <!-- USER DETAILS SECTION -->
+        <div class="form-section">
+            <div class="section-title">
+                <i class="fas fa-user"></i>
+                Contact Information
+            </div>
+            <div class="form-grid">
+                <input type="text" name="name" placeholder="Full Name" required>
+                <input type="tel"
+                       name="phone"
+                       placeholder="Mobile Number"
+                       pattern="^[6-9][0-9]{9}$"
+                       title="Enter valid 10-digit Indian mobile number"
+                       required>
+            </div>
+            <div class="input-helper">
+                <i class="fas fa-info-circle"></i>
+                <span>Enter a valid 10-digit mobile number</span>
+            </div>
+        </div>
+
+        <!-- LOCATION SECTION -->
+        <div class="form-section">
+            <div class="section-title">
+                <i class="fas fa-map-marker-alt"></i>
+                Delivery Location
+            </div>
+            <button type="button" class="location-btn" onclick="showLocationNotification()" id="locationBtn">
+                <i class="fas fa-crosshairs"></i>
+                <span id="locationBtnText">Use My Current Location</span>
+            </button>
+            <div id="locationStatus" class="location-status">
+                <i class="fas fa-info-circle"></i>
+                <span>Location not captured yet</span>
+            </div>
+        </div>
+
+        <!-- ADDRESS SECTION -->
+        <div class="form-section">
+            <div class="section-title">
+                <i class="fas fa-home"></i>
+                Delivery Address
+            </div>
+            <div class="form-grid">
+                <textarea class="full"
+                          name="address"
+                          id="addressBox"
+                          rows="3"
+                          placeholder="House no, Building, Street, Area"
+                          required></textarea>
+                <input type="text" name="landmark" placeholder="Landmark (Optional)">
+            </div>
+        </div>
+
+        <!-- PAYMENT METHOD SECTION -->
+        <div class="form-section">
+            <div class="section-title">
+                <i class="fas fa-credit-card"></i>
+                Payment Method
+            </div>
+            <div class="form-grid">
+                <div class="payment-option full">
+                    <select name="payment_method" required>
+                        <option value="">Select Payment Method</option>
+                        <option value="COD">💵 Cash on Delivery</option>
+                        <option value="UPI">📱 UPI Payment</option>
+                    </select>
+                </div>
+            </div>
+            <div class="payment-icons">
+                <div class="payment-icon-item">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <span>Pay on Delivery</span>
+                </div>
+                <div class="payment-icon-item">
+                    <i class="fas fa-mobile-alt"></i>
+                    <span>UPI Accepted</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- HIDDEN LOCATION DATA -->
+        <input type="hidden" name="latitude" id="latitude">
+        <input type="hidden" name="longitude" id="longitude">
+
+    </form>
+
+    <!-- STICKY CTA -->
+    <div class="cta-container">
+        <button type="button" class="place-btn" onclick="saveAndSendWhatsApp()">
+            <i class="fab fa-whatsapp"></i>
+            <span>Place Order & Send on WhatsApp</span>
+        </button>
+        <div class="cta-reassurance">
+            <i class="fas fa-check-circle"></i>
+            No payment required now • Confirm on WhatsApp
+        </div>
+    </div>
+
+</div>
+
+<script>
+let locationCaptured = false;
+
+// Show notification modal
+function showLocationNotification() {
+    document.getElementById('locationNotification').classList.add('show');
+}
+
+// Close notification modal
+function closeNotification() {
+    document.getElementById('locationNotification').classList.remove('show');
+}
+
+// Proceed with location after user confirms
+function proceedWithLocation() {
+    closeNotification();
+    getLocation();
+}
+
+function getLocation() {
+    if (!navigator.geolocation) {
+        alert("❌ Your browser does not support location services");
+        return;
+    }
+
+    // Show loading state
+    const btn = document.getElementById("locationBtn");
+    const btnText = document.getElementById("locationBtnText");
+    const statusDiv = document.getElementById("locationStatus");
+    
+    btn.classList.add("loading");
+    btnText.innerHTML = '<span class="spinner"></span> Getting Location...';
+    btn.disabled = true;
+
+    navigator.geolocation.getCurrentPosition(
+        function(pos) {
+            document.getElementById("latitude").value = pos.coords.latitude;
+            document.getElementById("longitude").value = pos.coords.longitude;
+
+            // Success state
+            statusDiv.classList.remove('warning');
+            statusDiv.classList.add("captured");
+            statusDiv.innerHTML =
+                '<i class="fas fa-check-circle"></i>' +
+                '<span>Location captured: ' +
+                pos.coords.latitude.toFixed(5) + ", " +
+                pos.coords.longitude.toFixed(5) + '</span>';
+
+            btn.classList.remove("loading");
+            btn.classList.add("success");
+            btnText.innerHTML = '<i class="fas fa-check-circle"></i> Location Captured Successfully';
+            
+            locationCaptured = true;
+            
+            // Re-enable button after 1 second
+            setTimeout(() => {
+                btn.disabled = false;
+            }, 1000);
+        },
+        function(error) {
+            // Error handling with specific messages
+            let errorMessage = '';
+            
+            if (error.code === 1) {
+                // Permission denied
+                errorMessage = "Location permission denied. Please enable location access in your browser settings.";
+                statusDiv.classList.add("warning");
+                statusDiv.innerHTML =
+                    '<i class="fas fa-exclamation-triangle"></i>' +
+                    '<span>Please enable location access to place your order</span>';
+            } else if (error.code === 2) {
+                // Position unavailable
+                errorMessage = "Location unavailable. Please check your device settings.";
+            } else if (error.code === 3) {
+                // Timeout
+                errorMessage = "Location request timed out. Please try again.";
+            }
+            
+            alert("📍 " + errorMessage);
+            
+            // Reset button
+            btn.classList.remove("loading");
+            btnText.innerHTML = '<i class="fas fa-crosshairs"></i> Use My Current Location';
+            btn.disabled = false;
+            
+            locationCaptured = false;
+        },
+        { 
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+        }
+    );
+}
+
+function saveAndSendWhatsApp() {
+    if (!locationCaptured) {
+        // Show warning in status
+        const statusDiv = document.getElementById("locationStatus");
+        statusDiv.classList.add("warning");
+        statusDiv.innerHTML =
+            '<i class="fas fa-exclamation-triangle"></i>' +
+            '<span>Please turn on your location to place the order</span>';
+        
+        alert("📍 Please turn on your location before placing the order");
+        document.getElementById("locationBtn").focus();
+        
+        // Scroll to location button
+        document.getElementById("locationBtn").scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+        });
+        return;
+    }
+
+    var form = document.getElementById("checkoutForm");
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+
+    var formData = new FormData(form);
+
+    // Disable button to prevent double submission
+    const btn = document.querySelector(".place-btn");
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Processing...';
+
+    fetch("/place_order", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.text())
+    .then(text => {
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch (e) {
+            alert("❌ Server response error. Order may not be saved.");
+            throw e;
+        }
+
+        if (!data.success) {
+            alert(data.message);
+            btn.disabled = false;
+            btn.innerHTML = originalHTML;
+            return;
+        }
+
+        var order = data.order;
+        var itemList = "";
+
+        order.items.forEach(item => {
+            itemList += "• " + item.name +
+                        " (x" + item.quantity + ") - ₹" +
+                        item.price + "\n";
+        });
+
+        var message =
+            "*New AyurShop Order*\n\n" +
+            "*Name:* " + order.name + "\n" +
+            "*Phone:* " + order.phone + "\n" +
+            "*Address:* " + order.address + "\n";
+
+        if (order.landmark) {
+            message += "*Landmark:* " + order.landmark + "\n";
+        }
+
+        message +=
+            "*Payment:* " + formData.get("payment_method") + "\n" +
+            "*Location:* " + order.map_link + "\n\n" +
+            "*Items:*\n" + itemList +
+            "\n*Total:* ₹" + order.total;
+
+        window.open(
+            "https://wa.me/918090952832?text=" + encodeURIComponent(message),
+            "_blank"
+        );
+
+        setTimeout(() => { window.location.href = "/"; }, 500);
+    })
+    .catch(() => {
+        alert("❌ Something went wrong. Please try again.");
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+    });
+}
+</script>
+
+{% endblock %}

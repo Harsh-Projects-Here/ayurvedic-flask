@@ -1,0 +1,164 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Invoice #{{ order.id }}{% endblock %}
+
+{% block content %}
+
+<style>
+/* SCREEN + PRINT SAFE */
+.invoice-box {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    max-width: 900px;
+    margin: auto;
+    color: #111;
+}
+
+/* HEADER */
+.invoice-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.invoice-header h2 {
+    margin: 0;
+}
+
+/* META */
+.invoice-meta {
+    margin-top: 8px;
+    font-size: 14px;
+    color: #444;
+}
+
+hr {
+    margin: 20px 0;
+    border: none;
+    border-top: 1px solid #ddd;
+}
+
+/* TABLE */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background: #f3f4f6;
+    font-weight: 600;
+}
+
+.total-row td {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+/* PRINT BUTTON */
+.print-btn {
+    margin-top: 20px;
+    padding: 12px 18px;
+    background: #2563eb;
+    color: white;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-block;
+}
+
+/* PRINT RULES */
+@media print {
+    body {
+        background: white;
+    }
+
+    .sidebar,
+    .print-btn {
+        display: none !important;
+    }
+
+    .content {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .invoice-box {
+        box-shadow: none;
+        border-radius: 0;
+        padding: 0;
+    }
+}
+</style>
+
+<div class="invoice-box">
+
+    <!-- HEADER -->
+    <div class="invoice-header">
+        <h2>AyurShop Invoice</h2>
+        <div>
+            <strong>Invoice #{{ order.id }}</strong>
+        </div>
+    </div>
+
+    <div class="invoice-meta">
+        Date: {{ order.date }} <br>
+        Order Status: {{ order.status }}
+    </div>
+
+    <hr>
+
+    <!-- CUSTOMER -->
+    <h3>Bill To</h3>
+    <p>
+        <strong>{{ order.name }}</strong><br>
+        Phone: {{ order.phone }}<br>
+        Address: {{ order.address }}<br>
+
+        {% if order.landmark %}
+            Landmark: {{ order.landmark }}<br>
+        {% endif %}
+
+        {% if order.map_link %}
+            Location:
+            <a href="{{ order.map_link }}" target="_blank">View on Google Maps</a>
+        {% endif %}
+    </p>
+
+    <hr>
+
+    <!-- ITEMS -->
+    <table>
+        <tr>
+            <th>Product</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>Total</th>
+        </tr>
+
+        {% for item in order["items"] %}
+        <tr>
+            <td>{{ item.name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>₹{{ item.price }}</td>
+            <td>₹{{ item.price * item.quantity }}</td>
+        </tr>
+        {% endfor %}
+
+        <tr class="total-row">
+            <td colspan="3">Grand Total</td>
+            <td>₹{{ order.total }}</td>
+        </tr>
+    </table>
+
+    <!-- PRINT -->
+    <a href="#" class="print-btn" onclick="window.print()">🖨️ Print Invoice</a>
+
+</div>
+
+{% endblock %}
