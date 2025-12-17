@@ -290,7 +290,6 @@ body {
 .order-info-grid {
     display: grid;
     gap: 12px;
-    margin-bottom: 16px;
 }
 
 .info-item {
@@ -355,9 +354,9 @@ body {
 }
 
 .status-wrapper {
-    margin-bottom: 16px;
-    padding: 12px;
-    background: #f9fafb;
+    margin-bottom: 0;
+    padding: 0;
+    background: transparent;
     border-radius: 8px;
     text-align: center;
 }
@@ -465,74 +464,6 @@ body {
 
 .status.dispatched .status-dot {
     background: #155e75;
-}
-
-.order-actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
-
-.action-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 12px 16px;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    border: none;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-}
-
-.action-btn::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.3);
-    transform: translate(-50%, -50%);
-    transition: width 0.5s, height 0.5s;
-}
-
-.action-btn:active::before {
-    width: 300px;
-    height: 300px;
-}
-
-.view-btn {
-    background: linear-gradient(135deg, #2c5f2d 0%, #3a7a3c 100%);
-    color: white;
-    box-shadow: 0 4px 12px rgba(44, 95, 45, 0.3);
-}
-
-.view-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(44, 95, 45, 0.4);
-}
-
-.delete-btn {
-    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-    color: white;
-    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
-}
-
-.delete-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(220, 53, 69, 0.4);
-}
-
-.action-btn svg {
-    width: 16px;
-    height: 16px;
 }
 
 /* Empty State */
@@ -766,7 +697,7 @@ body {
                     </div>
                     <span class="order-id">#{{ o['id'] }}</span>
                 </div>
-                <div class="status-wrapper" style="margin: 0; padding: 0; background: transparent;">
+                <div class="status-wrapper">
                     <span class="status {{ o['status']|lower }}">
                         <span class="status-dot"></span>
                         {{ o['status'] }}
@@ -811,24 +742,6 @@ body {
                             <div class="info-value">₹{{ o['total'] }}</div>
                         </div>
                     </div>
-                </div>
-                
-                <div class="order-actions">
-                    <a href="{{ url_for('admin.order_detail', order_id=o['id']) }}" class="action-btn view-btn">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                        View Details
-                    </a>
-                    <a href="{{ url_for('admin.delete_order', order_id=o['id']) }}" 
-                       class="action-btn delete-btn" 
-                       onclick="return confirm('Are you sure you want to delete this order? This action cannot be undone.');">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                        Delete
-                    </a>
                 </div>
             </div>
         </div>
