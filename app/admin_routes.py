@@ -61,7 +61,7 @@ def get_categories():
 
 
 # -----------------------------
-# ORDER HELPERS (SQLITE)
+# ORDER HELPERS (POSTGRESQL)
 # -----------------------------
 def load_orders():
     conn = get_db()
@@ -161,14 +161,20 @@ def admin_dashboard():
     delivered_orders = sum(1 for o in orders if o["status"] == "DELIVERED")
     total_revenue = sum(float(o["total"]) for o in orders)
 
-    today = datetime.now().strftime("%Y-%m-%d")
+    now = datetime.now()
+
     daily_revenue = sum(
-        float(o["total"]) for o in orders if o["created_at"].startswith(today)
+        float(o["total"])
+        for o in orders
+        if o["created_at"] and o["created_at"].date() == now.date()
     )
 
-    current_month = datetime.now().strftime("%Y-%m")
     monthly_revenue = sum(
-        float(o["total"]) for o in orders if o["created_at"].startswith(current_month)
+        float(o["total"])
+        for o in orders
+        if o["created_at"]
+        and o["created_at"].year == now.year
+        and o["created_at"].month == now.month
     )
 
     return render_template(
