@@ -305,6 +305,7 @@ def add_product():
         categories=get_categories()
     )
 
+
 @admin.route("/products/edit/<int:product_id>", methods=["GET", "POST"])
 @admin_required
 def edit_product(product_id):
@@ -315,32 +316,16 @@ def edit_product(product_id):
         return "Product not found", 404
 
     if request.method == "POST":
-
-        def safe_float(v, default=0.0):
-            try:
-                return float(v)
-            except (TypeError, ValueError):
-                return default
-
-        def safe_int(v, default=0):
-            try:
-                return int(v)
-            except (TypeError, ValueError):
-                return default
-
-        raw_badges = request.form.get("badges", "")
-        badges = [b.strip() for b in raw_badges.split(",") if b.strip()]
-
         product.update({
             "name": request.form.get("name"),
-            "mrp": safe_float(request.form.get("mrp")),
-            "price": safe_float(request.form.get("price")),
-            "rating": safe_float(request.form.get("rating")),
-            "rating_count": safe_int(request.form.get("rating_count")),
-            "delivery_days": safe_int(request.form.get("delivery_days")),
-            "badges": badges,
+            "mrp": float(request.form.get("mrp")),
+            "price": float(request.form.get("price")),
+            "rating": float(request.form.get("rating") or 0),
+            "rating_count": int(request.form.get("rating_count") or 0),
+            "delivery_days": int(request.form.get("delivery_days") or 0),
+            "badges": json.loads(request.form.get("badges", "[]")),
             "description": request.form.get("description"),
-            "stock": safe_int(request.form.get("stock")),
+            "stock": int(request.form.get("stock")),
             "category": request.form.get("category"),
         })
 
@@ -354,6 +339,8 @@ def edit_product(product_id):
     )
 
 
+@admin.route("/products/delete/<int:product_id>")
+@admin_required
 def delete_product(product_id):
     products = [p for p in _load_products() if p["id"] != product_id]
     _save_products(products)
