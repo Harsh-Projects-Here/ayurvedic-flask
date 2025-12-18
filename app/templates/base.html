@@ -40,7 +40,6 @@
             }
         }
 
-        /* MOBILE-FIRST BASE STYLES */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, var(--bg-light) 0%, var(--bg-white) 100%);
@@ -52,10 +51,64 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* HEADER - MOBILE FIRST */
+        /* ================= ANNOUNCEMENT TICKER ================= */
+        .announcement-ticker {
+            background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 100%);
+            color: #f4d03f;
+            overflow: hidden;
+            white-space: nowrap;
+            padding: 12px 0;
+            font-size: 14px;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .ticker-track {
+            display: inline-flex;
+            gap: 80px;
+            animation: ticker-scroll 25s linear infinite;
+            padding: 0 20px;
+        }
+
+        .ticker-track span {
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ticker-track span::before {
+            content: '●';
+            color: #a8e6a3;
+            font-size: 8px;
+        }
+
+        @keyframes ticker-scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .ticker-track:hover {
+            animation-play-state: paused;
+        }
+
+        @media (max-width: 768px) {
+            .announcement-ticker {
+                padding: 10px 0;
+                font-size: 12px;
+            }
+
+            .ticker-track {
+                gap: 60px;
+                animation-duration: 20s;
+            }
+        }
+
+        /* ================= HEADER ================= */
         header {
             background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-dark) 100%);
-            padding: 12px 16px;
+            padding: 14px 20px;
             color: white;
             position: sticky;
             top: 0;
@@ -72,13 +125,13 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            max-width: 100%;
+            max-width: 1400px;
             margin: 0 auto;
             position: relative;
         }
 
         .brand {
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             font-weight: 800;
             background: linear-gradient(to right, #fff, var(--primary-light));
             -webkit-background-clip: text;
@@ -101,10 +154,9 @@
             border-radius: 4px;
         }
 
-        /* HEADER CONTROLS - MOBILE OPTIMIZED */
         .header-controls {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             align-items: center;
         }
 
@@ -112,16 +164,16 @@
             background: rgba(255,255,255,0.15);
             border: 2px solid rgba(255,255,255,0.3);
             color: white;
-            padding: 10px 14px;
+            padding: 10px 16px;
             border-radius: 12px;
             font-size: 1rem;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             text-decoration: none;
             font-weight: 700;
             backdrop-filter: blur(10px);
-            transition: background var(--transition-fast);
+            transition: all var(--transition-fast);
             position: relative;
             min-height: 44px;
             min-width: 44px;
@@ -139,14 +191,15 @@
         }
 
         .cart-count {
-            background: #f44336;
+            background: linear-gradient(135deg, #ff4757 0%, #ff6348 100%);
             color: white;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             border-radius: 50%;
-            padding: 2px 5px;
+            padding: 3px 6px;
             font-weight: 700;
-            min-width: 18px;
+            min-width: 20px;
             text-align: center;
+            box-shadow: 0 2px 8px rgba(255, 71, 87, 0.4);
         }
 
         .darkmode-btn {
@@ -157,7 +210,7 @@
             cursor: pointer;
             padding: 10px;
             border-radius: 50%;
-            transition: background var(--transition-fast);
+            transition: all var(--transition-fast);
             backdrop-filter: blur(10px);
             width: 44px;
             height: 44px;
@@ -184,7 +237,7 @@
             cursor: pointer;
             padding: 10px;
             border-radius: 8px;
-            transition: background var(--transition-fast), transform var(--transition-normal);
+            transition: all var(--transition-fast);
             backdrop-filter: blur(10px);
             width: 44px;
             height: 44px;
@@ -207,16 +260,27 @@
             transform: rotate(90deg);
         }
 
-        /* MOBILE NAV MENU */
         nav {
             display: none;
             flex-direction: column;
             margin-top: 16px;
-            gap: 6px;
+            gap: 8px;
             background: rgba(255,255,255,0.1);
             padding: 12px;
             border-radius: 12px;
             backdrop-filter: blur(10px);
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         nav.active {
@@ -230,7 +294,7 @@
             padding: 14px 16px;
             background: rgba(255,255,255,0.15);
             border-radius: 10px;
-            transition: background var(--transition-fast);
+            transition: all var(--transition-fast);
             font-weight: 500;
             position: relative;
             overflow: hidden;
@@ -250,37 +314,39 @@
             background: rgba(255,255,255,0.25);
         }
 
-        /* MAIN CONTENT */
         main { 
             min-height: calc(100vh - 200px);
             padding: 0 16px;
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
-        /* PROMO SECTION - MOBILE FIRST */
+        /* ================= PROMO SECTION ================= */
         .promo-builder {
             background: linear-gradient(135deg, #f4faf6 0%, #eaf5ee 100%);
-            padding: 24px 20px;
-            margin: 32px auto;
+            padding: 28px 24px;
+            margin: 40px auto;
             max-width: 100%;
-            border-radius: 12px;
+            border-radius: 16px;
             text-align: left;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
             position: relative;
             overflow: hidden;
+            border: 1px solid rgba(45, 122, 62, 0.1);
         }
 
         .promo-ad-badge {
             position: absolute;
-            top: -10px;
-            left: 16px;
-            background: #2c2c2c;
+            top: -8px;
+            left: 20px;
+            background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
             color: #ffffff;
-            font-size: 0.6rem;
-            font-weight: 600;
-            padding: 4px 10px;
-            border-radius: 6px;
-            letter-spacing: 0.4px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 8px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             z-index: 3;
         }
 
@@ -291,7 +357,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: radial-gradient(circle, rgba(45, 122, 62, 0.03) 1px, transparent 1px);
+            background-image: radial-gradient(circle, rgba(45, 122, 62, 0.04) 1px, transparent 1px);
             background-size: 20px 20px;
             pointer-events: none;
             z-index: 0;
@@ -303,17 +369,18 @@
         }
 
         .promo-builder h2 {
-            font-size: 1.4rem;
-            margin-bottom: 8px;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
             color: var(--primary-dark);
             line-height: 1.3;
+            font-weight: 700;
         }
 
         .promo-builder p {
-            font-size: 0.95rem;
-            margin-bottom: 16px;
+            font-size: 1rem;
+            margin-bottom: 20px;
             color: #555;
-            line-height: 1.5;
+            line-height: 1.6;
         }
 
         .promo-btn,
@@ -326,17 +393,17 @@
         .promo-btn {
             background: linear-gradient(135deg, #25D366 0%, #1ea952 100%);
             color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
+            padding: 14px 28px;
+            border-radius: 10px;
             text-decoration: none;
             font-weight: 600;
-            transition: transform var(--transition-fast);
+            transition: all var(--transition-fast);
             box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
-            font-size: 0.95rem;
+            font-size: 1rem;
             min-height: 48px;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
 
         .promo-btn:active {
@@ -347,26 +414,200 @@
             color: var(--primary-dark);
             text-decoration: none;
             font-weight: 600;
-            font-size: 0.95rem;
+            font-size: 1rem;
             transition: color var(--transition-fast);
-            padding: 12px 8px;
+            padding: 14px 12px;
         }
 
         .promo-link:active {
             color: var(--primary-green);
         }
 
-        /* FOOTER */
-        footer {
-            background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-dark) 100%);
-            text-align: center;
-            padding: 24px 16px;
-            font-size: 0.9rem;
-            margin-top: 48px;
+        /* ================= FOOTER ================= */
+        .site-footer {
+            background: linear-gradient(135deg, #1e5a2d 0%, #0f3d1a 100%);
             color: rgba(255,255,255,0.9);
+            padding: 60px 20px 20px;
+            margin-top: 80px;
         }
 
-        /* DARK MODE */
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 35px;
+            }
+        }
+
+        .footer-section h3 {
+            color: #a8e6a3;
+            font-size: 19px;
+            font-weight: 700;
+            margin-bottom: 18px;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-section p {
+            font-size: 14px;
+            line-height: 1.8;
+            margin-bottom: 12px;
+            color: rgba(255,255,255,0.85);
+        }
+
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 12px;
+        }
+
+        .footer-section ul li a {
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .footer-section ul li a:hover {
+            color: #a8e6a3;
+            transform: translateX(5px);
+        }
+
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+        }
+
+        .contact-item i {
+            color: #a8e6a3;
+            font-size: 18px;
+            width: 22px;
+        }
+
+        .newsletter-form {
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .newsletter-input {
+            flex: 1;
+            padding: 13px 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .newsletter-input::placeholder {
+            color: rgba(255,255,255,0.6);
+        }
+
+        .newsletter-input:focus {
+            border-color: #a8e6a3;
+            background: rgba(255,255,255,0.15);
+        }
+
+        .newsletter-btn {
+            padding: 13px 22px;
+            background: linear-gradient(135deg, #25D366 0%, #1ea952 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .newsletter-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .social-icon {
+            width: 44px;
+            height: 44px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .social-icon:hover {
+            background: #25D366;
+            border-color: #25D366;
+            transform: translateY(-3px);
+        }
+
+        .whatsapp-cta {
+            background: linear-gradient(135deg, #25D366 0%, #1ea952 100%);
+            color: white;
+            padding: 13px 22px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 14px;
+            transition: transform 0.3s ease;
+        }
+
+        .whatsapp-cta:hover {
+            transform: translateY(-2px);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.2);
+            padding-top: 24px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .footer-bottom p {
+            margin: 8px 0;
+            color: rgba(255,255,255,0.85);
+        }
+
+        /* ================= DARK MODE ================= */
         body.dark {
             background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-dark-secondary) 100%);
             color: var(--text-light);
@@ -374,6 +615,10 @@
 
         body.dark header { 
             background: linear-gradient(135deg, #1a1a1a 0%, #0a0e0d 100%);
+        }
+
+        body.dark .announcement-ticker {
+            background: linear-gradient(135deg, #0f3d1a 0%, #1b4332 100%);
         }
 
         body.dark nav a { 
@@ -386,6 +631,7 @@
 
         body.dark .promo-builder {
             background: linear-gradient(135deg, #1a2a1e 0%, #243329 100%);
+            border-color: rgba(168, 230, 163, 0.2);
         }
 
         body.dark .promo-builder h2 {
@@ -397,12 +643,8 @@
         }
 
         body.dark .promo-ad-badge {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-
-        body.dark footer {
-            background: linear-gradient(135deg, #1a1a1a 0%, #0a0e0d 100%);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         body.dark .support-tooltip {
@@ -411,15 +653,15 @@
             border-color: rgba(255, 255, 255, 0.2);
         }
 
-        /* SCROLL TO TOP - MOBILE OPTIMIZED */
+        /* ================= SCROLL TO TOP ================= */
         .scroll-top {
             position: fixed;
             bottom: 24px;
             right: 16px;
             background: linear-gradient(135deg, #25D366 0%, #1ea952 100%);
             color: white;
-            width: 48px;
-            height: 48px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             border: none;
             font-size: 1.3rem;
@@ -429,7 +671,7 @@
             justify-content: center;
             z-index: 999;
             box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
-            transition: opacity var(--transition-normal), transform var(--transition-normal);
+            transition: all var(--transition-normal);
             opacity: 0;
             transform: translateY(100px);
         }
@@ -449,10 +691,10 @@
             outline-offset: 3px;
         }
 
-        /* FLOATING WHATSAPP - MOBILE OPTIMIZED */
+        /* ================= FLOATING SUPPORT ================= */
         .floating-support {
             position: fixed;
-            bottom: 160px;
+            bottom: 90px;
             right: 16px;
             z-index: 1200;
             display: flex;
@@ -464,11 +706,11 @@
             display: none;
             background: var(--bg-white);
             color: var(--text-dark);
-            padding: 10px 12px;
+            padding: 12px 14px;
             font-size: 12px;
             font-weight: 600;
-            line-height: 1.4;
-            border-radius: 8px;
+            line-height: 1.5;
+            border-radius: 10px;
             border: 1px solid rgba(45, 122, 62, 0.2);
             box-shadow: 0 4px 12px rgba(0,0,0,0.12);
             max-width: 200px;
@@ -486,37 +728,44 @@
         }
 
         .floating-support img {
-            width: 60px;
-            height: 60px;
+            width: 64px;
+            height: 64px;
             border-radius: 50%;
             cursor: pointer;
-            box-shadow: 0 4px 16px rgba(37, 211, 102, 0.4);
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
             transition: transform var(--transition-fast);
             border: 3px solid rgba(255, 255, 255, 0.9);
+            animation: supportPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes supportPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
 
         .floating-support img:active {
             transform: scale(0.95);
         }
 
-        /* TOAST NOTIFICATION - MOBILE OPTIMIZED */
+        /* ================= TOAST ================= */
         .toast {
             position: fixed;
             bottom: 20px;
             left: 16px;
             right: 16px;
-            background: #1ea952;
+            background: linear-gradient(135deg, #1ea952 0%, #25D366 100%);
             color: white;
-            padding: 12px 16px;
-            border-radius: 8px;
+            padding: 14px 18px;
+            border-radius: 10px;
             opacity: 0;
             transform: translateY(50px);
             transition: all var(--transition-slow);
             z-index: 2000;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
             pointer-events: none;
             text-align: center;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
+            font-weight: 600;
         }
 
         .toast.show {
@@ -524,7 +773,7 @@
             transform: translateY(0);
         }
 
-        /* OVERLAY FOR MOBILE MENU */
+        /* ================= MENU OVERLAY ================= */
         .menu-overlay {
             position: fixed;
             top: 0;
@@ -544,77 +793,146 @@
             opacity: 1;
         }
 
-        /* TABLET STYLES (600px+) */
-        @media (min-width: 600px) {
-            header {
-                padding: 14px 24px;
+        /* ================= BOTTOM NAVIGATION ================= */
+        .bottom-nav {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .bottom-nav {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 68px;
+                background: #ffffff;
+                border-top: 1px solid #e0e0e0;
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                z-index: 2000;
+                box-shadow: 0 -4px 15px rgba(0,0,0,0.08);
             }
 
-            .brand {
-                font-size: 1.7rem;
+            .bottom-nav a {
+                text-decoration: none;
+                color: #444;
+                font-size: 11px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 5px;
+                font-weight: 600;
+                padding: 8px 12px;
+                transition: all 0.3s ease;
             }
 
-            .header-controls {
-                gap: 10px;
+            .bottom-nav a:active {
+                transform: scale(0.95);
+            }
+
+            .bottom-nav i {
+                font-size: 20px;
+                color: #2d6a4f;
+                transition: all 0.3s ease;
+            }
+
+            .bottom-nav a:active i {
+                color: #1ea952;
             }
 
             main {
-                padding: 0 24px;
+                padding-bottom: 100px;
+            }
+
+            body.dark .bottom-nav {
+                background: #1a1a1a;
+                border-top-color: rgba(255,255,255,0.1);
+            }
+
+            body.dark .bottom-nav a {
+                color: rgba(255,255,255,0.85);
+            }
+
+            body.dark .bottom-nav i {
+                color: #a8e6a3;
+            }
+        }
+
+        .no-transition {
+            transition: none !important;
+        }
+
+        /* ================= RESPONSIVE IMPROVEMENTS ================= */
+        @media (min-width: 600px) {
+            header {
+                padding: 16px 28px;
+            }
+
+            .brand {
+                font-size: 1.8rem;
+            }
+
+            .header-controls {
+                gap: 12px;
+            }
+
+            main {
+                padding: 0 28px;
             }
 
             .promo-builder {
-                padding: 32px 24px;
-                margin: 40px auto;
-                max-width: 700px;
+                padding: 36px 32px;
+                margin: 50px auto;
+                max-width: 750px;
             }
 
             .promo-builder h2 {
-                font-size: 1.5rem;
+                font-size: 1.7rem;
             }
 
             .promo-builder p {
-                font-size: 1rem;
+                font-size: 1.05rem;
             }
 
             .support-tooltip {
                 display: block;
-                max-width: 220px;
-                font-size: 12.5px;
+                max-width: 240px;
+                font-size: 13px;
             }
 
             .floating-support {
-                bottom: 90px;
-                right: 24px;
+                bottom: 100px;
+                right: 28px;
             }
 
             .floating-support img {
-                width: 64px;
-                height: 64px;
+                width: 68px;
+                height: 68px;
             }
 
             .scroll-top {
                 bottom: 28px;
-                right: 24px;
-                width: 50px;
-                height: 50px;
+                right: 28px;
+                width: 52px;
+                height: 52px;
             }
 
             .toast {
                 left: auto;
-                right: 24px;
-                max-width: 350px;
-                bottom: 24px;
+                right: 28px;
+                max-width: 380px;
+                bottom: 28px;
             }
         }
 
-        /* DESKTOP STYLES (900px+) */
         @media (min-width: 900px) {
             header {
-                padding: 16px 32px;
+                padding: 18px 40px;
             }
 
             .brand {
-                font-size: 1.9rem;
+                font-size: 2rem;
             }
 
             .brand:hover {
@@ -623,7 +941,7 @@
             }
 
             .header-controls {
-                gap: 12px;
+                gap: 14px;
             }
 
             .cart-header-btn:hover {
@@ -668,22 +986,22 @@
             }
 
             main {
-                padding: 0 32px;
+                padding: 0 40px;
             }
 
             .promo-builder {
-                padding: 36px 28px;
-                margin: 48px auto;
+                padding: 40px 36px;
+                margin: 60px auto;
                 max-width: 900px;
             }
 
             .promo-builder h2 {
-                font-size: 1.6rem;
+                font-size: 1.8rem;
             }
 
             .promo-builder p {
-                font-size: 1rem;
-                max-width: 520px;
+                font-size: 1.1rem;
+                max-width: 600px;
             }
 
             .promo-btn:hover {
@@ -697,9 +1015,9 @@
             }
 
             .support-tooltip {
-                max-width: 260px;
-                font-size: 13.5px;
-                padding: 12px 16px;
+                max-width: 280px;
+                font-size: 14px;
+                padding: 14px 18px;
             }
 
             .support-tooltip.show {
@@ -733,15 +1051,14 @@
             }
 
             .floating-support {
-                bottom: 100px;
-                right: 30px;
+                bottom: 110px;
+                right: 35px;
                 gap: 16px;
             }
 
             .floating-support img {
                 width: 72px;
                 height: 72px;
-                animation: supportPulse 3s ease-in-out infinite;
             }
 
             .floating-support img:hover {
@@ -749,14 +1066,11 @@
                 box-shadow: 0 8px 28px rgba(37, 211, 102, 0.5);
             }
 
-            @keyframes supportPulse {
-                0%, 100% { transform: scale(1); }
-                50% { transform: scale(1.05); }
-            }
-
             .scroll-top {
-                bottom: 30px;
-                right: 30px;
+                bottom: 35px;
+                right: 35px;
+                width: 54px;
+                height: 54px;
             }
 
             .scroll-top:hover {
@@ -765,60 +1079,18 @@
             }
 
             .toast {
-                bottom: 30px;
-                right: 30px;
-            }
-
-            footer {
-                padding: 30px 32px;
-                font-size: 0.95rem;
+                bottom: 35px;
+                right: 35px;
             }
         }
-
-        /* LOADING STATE PREVENTION */
-        .no-transition {
-            transition: none !important;
-        }
-/* MOBILE BOTTOM NAV */
-.bottom-nav {
-  display: none;
+.brand-logo {
+    height: 72px;
 }
 
-@media (max-width: 768px) {
-  .bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 64px;
-    background: #ffffff;
-    border-top: 1px solid #e0e0e0;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    z-index: 2000;
-    box-shadow: 0 -4px 15px rgba(0,0,0,0.08);
-  }
-
-  .bottom-nav a {
-    text-decoration: none;
-    color: #444;
-    font-size: 12px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    font-weight: 600;
-  }
-
-  .bottom-nav i {
-    font-size: 20px;
-    color: #2d6a4f;
-  }
-
-  main {
-    padding-bottom: 90px; /* prevent overlap */
-  }
+@media (min-width: 900px) {
+    .brand-logo {
+        height: 72px;
+    }
 }
 
     </style>
@@ -826,19 +1098,21 @@
 
 <body class="no-transition">
 
-    <!-- MOBILE MENU OVERLAY -->
     <div class="menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
 
-    <!-- HEADER -->
     <header id="mainHeader">
         <div class="header-container">
-            <div class="brand" onclick="window.location='{{ url_for('main.home') }}'" tabindex="0" role="button" aria-label="Ayurshop Home">
-                Ayurshop
-            </div>
+           <div class="brand" onclick="window.location='{{ url_for('main.home') }}'" tabindex="0" role="button" aria-label="Ayurshop Home">
+    <img 
+        src="{{ url_for('static', filename='images/logo.png') }}" 
+        alt="Ayurshop Logo"
+        class="brand-logo"
+    >
+</div>
+
 
             <div class="header-controls">
 
-                <!-- CART BUTTON -->
                 <a href="{{ url_for('main.view_cart') }}" class="cart-header-btn" aria-label="View shopping cart">
                     <i class="fas fa-shopping-cart"></i>
                     <span class="cart-count" aria-label="Items in cart">
@@ -846,42 +1120,47 @@
                     </span>
                 </a>
 
-                <!-- DARK MODE -->
                 <button class="darkmode-btn" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
                     <span id="darkModeIcon">🌙</span>
                 </button>
 
-                <!-- HAMBURGER MENU -->
                 <button class="hamburger" onclick="toggleMenu()" aria-label="Toggle navigation menu" aria-expanded="false">
                     ☰
                 </button>
             </div>
         </div>
 
-        <!-- NAVIGATION MENU -->
-<nav id="mobileMenu" role="navigation" aria-label="Main navigation">
-    <a href="{{ url_for('main.home') }}">Home</a>
-    <a href="{{ url_for('main.products') }}">Products</a>
-    <a href="{{ url_for('main.offers') }}">Offers</a>
-    <a href="{{ url_for('main.blog') }}">Blog</a>
-    <a href="{{ url_for('main.faq') }}">FAQ</a>
-    <a href="{{ url_for('main.about') }}">About</a>
-    <a href="{{ url_for('main.contact') }}">Contact</a>
-
-  </nav>
+        <nav id="mobileMenu" role="navigation" aria-label="Main navigation">
+            <a href="{{ url_for('main.home') }}">Home</a>
+            <a href="{{ url_for('main.products') }}">Products</a>
+            <a href="{{ url_for('main.offers') }}">Offers</a>
+            <a href="{{ url_for('main.blog') }}">Blog</a>
+            <a href="{{ url_for('main.faq') }}">FAQ</a>
+            <a href="{{ url_for('main.about') }}">About</a>
+            <a href="{{ url_for('main.contact') }}">Contact</a>
+        </nav>
       
     </header>
 
-    <!-- MAIN CONTENT -->
+    <div class="announcement-ticker">
+        <div class="ticker-track">
+            <span>Customer Support: +91 8340106698 | ग्राहक सहायता: +91 8340106698</span>
+            <span>Free Certified Doctor Consultation: +91 8340106698 | निःशुल्क प्रमाणित डॉक्टर परामर्श</span>
+            <span>Free Shipping on All Orders • Order Now & Save</span>
+            <span>Customer Support: +91 8340106698 | ग्राहक सहायता: +91 8340106698</span>
+            <span>Free Certified Doctor Consultation: +91 8340106698 | निःशुल्क प्रमाणित डॉक्टर परामर्श</span>
+            <span>Free Shipping on All Orders • Order Now & Save</span>
+        </div>
+    </div>
+
     <main role="main">
         {% block content %}
         {% endblock %}
 
-        <!-- PROMOTION BLOCK WITH AD BADGE -->
         <section class="promo-builder">
-            <span class="promo-ad-badge">SPONSERED</span>
+            <span class="promo-ad-badge">SPONSORED</span>
             <h2>Need a Website Like This?</h2>
-            <p>Get fast, modern, mobile-friendly websites for businesses.</p>
+            <p>Get fast, modern, mobile-friendly websites for businesses. Professional design with responsive layouts.</p>
             <a class="promo-btn" href="https://wa.me/918090952832" target="_blank" rel="noopener noreferrer">
                 <i class="fab fa-whatsapp"></i> Contact on WhatsApp
             </a>
@@ -891,12 +1170,89 @@
         </section>
     </main>
 
-  <footer role="contentinfo">
-    © 2025 Ayurshop. All Rights Reserved.<br>
-    Made with 💝 by <strong><b style="color:#FFFF00;">HARSH</b></strong><br>
-</footer>
+    <footer class="site-footer" role="contentinfo">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h3>About Ayurshop</h3>
+                    <p>Your trusted source for authentic Ayurvedic products. We bring ancient wisdom and natural healing to modern wellness.</p>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon" aria-label="Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="social-icon" aria-label="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="social-icon" aria-label="YouTube">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                        <a href="https://wa.me/918340106698" class="social-icon" aria-label="WhatsApp">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                    </div>
+                </div>
 
-    <!-- FLOATING WHATSAPP SUPPORT -->
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="{{ url_for('main.products') }}">Shop Products</a></li>
+                        <li><a href="{{ url_for('main.offers') }}">Special Offers</a></li>
+                        <li><a href="{{ url_for('main.blog') }}">Blog & Articles</a></li>
+                        <li><a href="{{ url_for('main.about') }}">About Us</a></li>
+                        <li><a href="{{ url_for('main.contact') }}">Contact Us</a></li>
+                        <li><a href="{{ url_for('main.faq') }}">FAQ</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h3>Our Policies</h3>
+                    <ul>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms & Conditions</a></li>
+                        <li><a href="#">Shipping Policy</a></li>
+                        <li><a href="#">Return & Refund</a></li>
+                        <li><a href="#">Payment Methods</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h3>Contact Us</h3>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <i class="fas fa-phone"></i>
+                            <span>+91 8340106698</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>info@ayurshop.com</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>India</span>
+                        </div>
+                    </div>
+                    <a href="https://wa.me/918340106698" class="whatsapp-cta">
+                        <i class="fab fa-whatsapp"></i> Chat on WhatsApp
+                    </a>
+                </div>
+
+                <div class="footer-section">
+                    <h3>Newsletter</h3>
+                    <p>Subscribe to get special offers and updates</p>
+                    <form class="newsletter-form" onsubmit="return false;">
+                        <input type="email" class="newsletter-input" placeholder="Your email" required>
+                        <button type="submit" class="newsletter-btn">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>© 2025 Ayurshop. All Rights Reserved.</p>
+                <p>Made with 💝 by <strong style="color:#FFFF00;">HARSH</strong></p>
+            </div>
+        </div>
+    </footer>
+
     <div class="floating-support">
         <div class="support-tooltip" id="supportTooltip"></div>
 
@@ -911,15 +1267,12 @@
         </a>
     </div>
 
-    <!-- SCROLL TO TOP BUTTON -->
     <button class="scroll-top" onclick="scrollToTop()" aria-label="Scroll to top">
         <i class="fas fa-arrow-up"></i>
     </button>
 
-    <!-- TOAST NOTIFICATION -->
     <div id="toast" class="toast" role="alert" aria-live="polite"></div>
 
-    <!-- JAVASCRIPT -->
     <script>
         window.addEventListener('load', () => {
             setTimeout(() => {
@@ -970,7 +1323,7 @@
         }
 
         function toggleDarkMode() {
-            const body =            document.body;
+            const body = document.body;
             const icon = document.getElementById("darkModeIcon");
             body.classList.toggle("dark");
 
@@ -985,14 +1338,12 @@
             }
         }
 
-        // Initialize Dark Mode on page load
         if (localStorage.getItem("theme") === "dark") {
             document.body.classList.add("dark");
             const icon = document.getElementById("darkModeIcon");
             if (icon) icon.textContent = "☀️";
         }
 
-        // Scroll-to-top visibility
         window.addEventListener("scroll", () => {
             const btn = document.querySelector(".scroll-top");
             if (!btn) return;
@@ -1004,12 +1355,10 @@
             }
         });
 
-        // Scroll to top action
         function scrollToTop() {
             window.scrollTo({ top: 0, behavior: "smooth" });
         }
 
-        // Keyboard accessibility for brand
         const brand = document.querySelector(".brand");
         if (brand) {
             brand.addEventListener("keydown", (e) => {
@@ -1020,9 +1369,6 @@
             });
         }
 
-        /* ===============================
-           SUPPORT TOOLTIP ROTATION
-           =============================== */
         const supportMessages = [
             "Having trouble? Connect instantly with customer support",
             "Need consultation? Click here",
@@ -1049,37 +1395,33 @@
             cycleSupportMessage();
         }
     </script>
-{% block bottom_nav %}
-<!-- MOBILE BOTTOM NAV -->
-<div class="bottom-nav">
-  <a href="{{ url_for('main.products') }}">
-    <i class="fas fa-store"></i>
-    <span>Shop</span>
-  </a>
 
-  <a href="{{ url_for('main.view_cart') }}">
-    <i class="fas fa-shopping-cart"></i>
-    <span>Cart</span>
-  </a>
-
-  {% if session.get("user_id") %}
-    <a href="{{ url_for('main.my_orders') }}">
-      <i class="fas fa-box"></i>
-      <span>Orders</span>
-    </a>
-
-    <a href="{{ url_for('main.account') }}">
-      <i class="fas fa-user"></i>
-      <span>Account</span>
-    </a>
-  {% else %}
-    <a href="{{ url_for('main.login') }}">
-      <i class="fas fa-user-lock"></i>
-      <span>Login</span>
-    </a>
-  {% endif %}
-</div>
-{% endblock %}
-
+    {% block bottom_nav %}
+    <div class="bottom-nav">
+        <a href="{{ url_for('main.products') }}">
+            <i class="fas fa-store"></i>
+            <span>Shop</span>
+        </a>
+        <a href="{{ url_for('main.view_cart') }}">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Cart</span>
+        </a>
+        {% if session.get("user_id") %}
+        <a href="{{ url_for('main.my_orders') }}">
+            <i class="fas fa-box"></i>
+            <span>Orders</span>
+        </a>
+        <a href="{{ url_for('main.account') }}">
+            <i class="fas fa-user"></i>
+            <span>Account</span>
+        </a>
+        {% else %}
+        <a href="{{ url_for('main.login') }}">
+            <i class="fas fa-user-lock"></i>
+            <span>Login</span>
+        </a>
+        {% endif %}
+    </div>
+    {% endblock %}
 </body>
 </html>

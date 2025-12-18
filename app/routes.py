@@ -60,7 +60,7 @@ def login():
             session["user_id"] = user["id"]
             session["user_name"] = user["name"]
 
-            return redirect(url_for("main.products"))
+            return redirect(url_for("main.home"))
         finally:
             conn.close()
 
@@ -136,7 +136,18 @@ def update_account():
 # -----------------------
 @main.route("/")
 def home():
-    return render_template("index.html")
+    products = load_products()
+
+    for p in products:
+        p["category"] = p.get("category", "Other")
+
+    categories = sorted(set(p["category"] for p in products))
+
+    return render_template(
+        "index.html",
+        products=products,
+        categories=categories
+    )
 
 
 # -----------------------
