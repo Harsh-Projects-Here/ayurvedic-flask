@@ -1248,41 +1248,34 @@ data-category="{{ p.category }}"
   </div>
 </section>
 <script>
+let activeCategory = "all";
+
 function goToProduct(id) {
   window.location.href = `/product/${id}`;
 }
 
 function filterByCategory(e, category) {
   e.preventDefault();
+  activeCategory = category;
 
   document.querySelectorAll(".category-item")
     .forEach(b => b.classList.remove("active"));
   e.currentTarget.classList.add("active");
 
-  let count = 0;
-  document.querySelectorAll(".product-card").forEach(card => {
-if (
-  category === "all" ||
-  card.dataset.category.trim() === category.trim()
-) {
-      card.style.display = "flex";
-      count++;
-    } else {
-      card.style.display = "none";
-    }
-  });
-
-  document.getElementById("productCount").textContent = count;
-  document.getElementById("emptyState").style.display = count ? "none" : "block";
+  applyFilters();
 }
 
-function filterProducts() {
+function applyFilters() {
   const q = document.getElementById("searchInput").value.toLowerCase();
   let count = 0;
 
   document.querySelectorAll(".product-card").forEach(card => {
-    const match = card.dataset.name.includes(q);
-    if (match) {
+    const matchName = card.dataset.name.includes(q);
+    const matchCategory =
+      activeCategory === "all" ||
+      card.dataset.category === activeCategory;
+
+    if (matchName && matchCategory) {
       card.style.display = "flex";
       count++;
     } else {
@@ -1291,9 +1284,15 @@ function filterProducts() {
   });
 
   document.getElementById("productCount").textContent = count;
-  document.getElementById("emptyState").style.display = count ? "none" : "block";
+  document.getElementById("emptyState").style.display =
+    count ? "none" : "block";
+}
+
+function filterProducts() {
+  applyFilters();
 }
 </script>
+
 <section class="features-section">
   <div class="container">
     <div class="features-grid">
