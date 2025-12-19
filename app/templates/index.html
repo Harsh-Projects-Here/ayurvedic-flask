@@ -1168,17 +1168,22 @@ body {
   <div class="categories">
     <div class="container">
       <div class="category-list">
-        <a href="#shop"
-           class="category-item active"
-           onclick="filterByCategory(event,'all')">All</a>
-    {% for c in categories %}
-    <a href="#shop"
-   class="category-item"
-   onclick="filterByCategory(event,'{{ c }}')">
-  {{ c|title }}
+  <a href="#shop"
+   class="category-item active"
+   data-category="all"
+   onclick="filterByCategory(event, this.dataset.category)">
+  All
 </a>
 
-    {% endfor %}
+{% for c in categories %}
+<a href="#shop"
+   class="category-item"
+   data-category="{{ c }}"
+   onclick="filterByCategory(event, this.dataset.category)">
+  {{ c|title }}
+</a>
+{% endfor %}
+
   </div>
 </div>
   </div>
@@ -1192,9 +1197,11 @@ body {
       <div class="product-grid" id="productGrid">
 {% for p in products %}
 <div class="product-card"
+     data-id="{{ p.id }}"
      data-name="{{ p.name|lower }}"
-data-category="{{ p.category }}"
-     onclick="goToProduct('{{ p.id }}')">
+     data-category="{{ p.category }}"
+     onclick="goToProduct(this.dataset.id)">
+
   <div class="product-image">
     {% set img = p.images[0] if p.images else 'default.png' %}
     <img src="{{ url_for('static', filename='images/' ~ img) }}" alt="{{ p.name }}">
