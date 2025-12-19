@@ -1173,10 +1173,11 @@ body {
            onclick="filterByCategory(event,'all')">All</a>
     {% for c in categories %}
     <a href="#shop"
-       class="category-item"
-       onclick="filterByCategory(event,'{{ c|lower }}')">
-      {{ c }}
-    </a>
+   class="category-item"
+   onclick="filterByCategory(event,'{{ c }}')">
+  {{ c|title }}
+</a>
+
     {% endfor %}
   </div>
 </div>
@@ -1192,7 +1193,7 @@ body {
 {% for p in products %}
 <div class="product-card"
      data-name="{{ p.name|lower }}"
-     data-category="{{ p.category|lower }}"
+data-category="{{ p.category }}"
      onclick="goToProduct('{{ p.id }}')">
   <div class="product-image">
     {% set img = p.images[0] if p.images else 'default.png' %}
@@ -1260,7 +1261,10 @@ function filterByCategory(e, category) {
 
   let count = 0;
   document.querySelectorAll(".product-card").forEach(card => {
-    if (category === "all" || card.dataset.category === category) {
+if (
+  category === "all" ||
+  card.dataset.category.trim() === category.trim()
+) {
       card.style.display = "flex";
       count++;
     } else {

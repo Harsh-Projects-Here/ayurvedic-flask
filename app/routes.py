@@ -139,7 +139,8 @@ def home():
     products = load_products()
 
     for p in products:
-        p["category"] = p.get("category", "Other")
+        category = p.get("category", "Other")
+        p["category"] = category.strip().lower()
 
     categories = sorted(set(p["category"] for p in products))
 
@@ -148,7 +149,6 @@ def home():
         products=products,
         categories=categories
     )
-
 
 # -----------------------
 # PRODUCTS
