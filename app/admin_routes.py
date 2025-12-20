@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session
 import json, os, uuid
 from functools import wraps
-from app.config import ADMIN_USERNAME, ADMIN_PASSWORD, PRODUCTS_FILE, UPLOAD_FOLDER
+from app.config import ADMIN_USERNAME, ADMIN_PASSWORD, UPLOAD_FOLDER
 from datetime import datetime
 from werkzeug.utils import secure_filename
 from urllib.parse import quote
@@ -37,27 +37,24 @@ def _ensure_upload_folder():
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 
-def _load_products():
-    try:
-        with open(PRODUCTS_FILE, "r") as f:
-            return json.load(f)
-    except:
-        return []
-
-def _ensure_products_file_dir():
-    os.makedirs(os.path.dirname(PRODUCTS_FILE), exist_ok=True)
 
 
-def _save_products(products):
-    _ensure_products_file_dir()
-    with open(PRODUCTS_FILE, "w") as f:
-        json.dump(products, f, indent=4)
+
 
 
 
 def get_categories():
-    products = _load_products()
-    return sorted(set(p.get("category") for p in products if p.get("category")))
+    conn = get_db()
+    if not conn:
+        return []
+
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT DISTINCT category FROM products WHERE category IS NOT NULL")
+        return sorted([row["category"] for row in cur.fetchall()])
+    finally:
+        conn.close()
+
 
 
 # -----------------------------
@@ -270,7 +267,19 @@ def view_invoice(order_id):
 @admin.route("/products")
 @admin_required
 def admin_products():
-    return render_template("admin/products.html", products=_load_products())
+    conn = get_db()
+    if not conn:
+        return render_template("admin/products.html", products=[])
+
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM products ORDER BY id DESC")
+        products = cur.fetchall()
+    finally:
+        conn.close()
+
+    return render_template("admin/products.html", products=products)
+
 
 
 @admin.route("/products/add", methods=["GET", "POST"])
@@ -299,27 +308,35 @@ def add_product():
             f.save(os.path.join(UPLOAD_FOLDER, name))
             images.append(name)
 
-        products = _load_products()
+        conn = get_db()
+        if not conn:
+            return "Database unavailable", 500
 
-        new_id = max((p["id"] for p in products), default=0) + 1
+        try:
+            cur = conn.cursor()
+            cur.execute("""
+                INSERT INTO products
+                (name, mrp, price, rating, rating_count, delivery_days,
+                 description, stock, category, badges, images, created_at)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            """, (
+                request.form.get("name"),
+                float(request.form.get("mrp")),
+                float(request.form.get("price")),
+                float(request.form.get("rating") or 0),
+                int(request.form.get("rating_count") or 0),
+                int(request.form.get("delivery_days") or 0),
+                request.form.get("description"),
+                int(request.form.get("stock")),
+                request.form.get("category"),
+                [],
+                images,
+                datetime.now()
+            ))
+            conn.commit()
+        finally:
+            conn.close()
 
-        products.append({
-            "id": new_id,
-            "name": request.form.get("name"),
-            "mrp": float(request.form.get("mrp")),
-            "price": float(request.form.get("price")),
-            "rating": float(request.form.get("rating") or 0),
-            "rating_count": int(request.form.get("rating_count") or 0),
-            "delivery_days": int(request.form.get("delivery_days") or 0),
-            "description": request.form.get("description"),
-            "stock": int(request.form.get("stock")),
-            "category": request.form.get("category"),
-            "badges": [],
-            "created_at": datetime.now().isoformat(),
-            "images": images
-        })
-
-        _save_products(products)
         return redirect(url_for("admin.admin_products"))
 
     return render_template(
@@ -328,53 +345,75 @@ def add_product():
     )
 
 
+
 @admin.route("/products/edit/<int:product_id>", methods=["GET", "POST"])
 @admin_required
 def edit_product(product_id):
-    products = _load_products()
-    product = next((p for p in products if p["id"] == product_id), None)
+    conn = get_db()
+    if not conn:
+        return "Database unavailable", 500
 
-    if not product:
-        return "Product not found", 404
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM products WHERE id = %s", (product_id,))
+        product = cur.fetchone()
 
-    if request.method == "POST":
-        raw_badges = request.form.get("badges", "").strip()
+        if not product:
+            return "Product not found", 404
 
-        try:
-            badges = json.loads(raw_badges) if raw_badges else []
-        except json.JSONDecodeError:
-            badges = []
+        if request.method == "POST":
+            raw_badges = request.form.get("badges", "").strip()
+            try:
+                badges = json.loads(raw_badges) if raw_badges else []
+            except json.JSONDecodeError:
+                badges = []
 
-        product.update({
-            "name": request.form.get("name"),
-            "mrp": float(request.form.get("mrp")),
-            "price": float(request.form.get("price")),
-            "rating": float(request.form.get("rating") or 0),
-            "rating_count": int(request.form.get("rating_count") or 0),
-            "delivery_days": int(request.form.get("delivery_days") or 0),
-            "badges": badges,
-            "description": request.form.get("description"),
-            "stock": int(request.form.get("stock")),
-            "category": request.form.get("category"),
-        })
+            cur.execute("""
+                UPDATE products
+                SET name=%s, mrp=%s, price=%s, rating=%s, rating_count=%s,
+                    delivery_days=%s, badges=%s, description=%s,
+                    stock=%s, category=%s
+                WHERE id=%s
+            """, (
+                request.form.get("name"),
+                float(request.form.get("mrp")),
+                float(request.form.get("price")),
+                float(request.form.get("rating") or 0),
+                int(request.form.get("rating_count") or 0),
+                int(request.form.get("delivery_days") or 0),
+                badges,
+                request.form.get("description"),
+                int(request.form.get("stock")),
+                request.form.get("category"),
+                product_id
+            ))
+            conn.commit()
+            return redirect(url_for("admin.admin_products"))
 
-        _save_products(products)
-        return redirect(url_for("admin.admin_products"))
-
-    return render_template(
-        "admin/edit_product.html",
-        product=product,
-        categories=get_categories()
-    )
-
+        return render_template(
+            "admin/edit_product.html",
+            product=product,
+            categories=get_categories()
+        )
+    finally:
+        conn.close()
 
 @admin.route("/products/delete/<int:product_id>")
 @admin_required
 def delete_product(product_id):
-    products = [p for p in _load_products() if p["id"] != product_id]
-    _save_products(products)
+    conn = get_db()
+    if not conn:
+        return "Database unavailable", 500
+
+    try:
+        cur = conn.cursor()
+        cur.execute("DELETE FROM products WHERE id = %s", (product_id,))
+        conn.commit()
+    finally:
+        conn.close()
 
     return redirect(url_for("admin.admin_products"))
+
 
 
 @admin.route("/orders/update/<int:order_id>", methods=["POST"])
