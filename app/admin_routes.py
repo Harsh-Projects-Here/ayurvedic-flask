@@ -160,6 +160,63 @@ def admin_dashboard():
     )
 
 
+@admin.route("/products/edit/<int:product_id>", methods=["GET", "POST"])
+@admin_required
+def edit_product(product_id):
+    conn = get_db()
+    if not conn:
+        return "Database unavailable", 500
+
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM products WHERE id = %s", (product_id,))
+        product = cur.fetchone()
+        if not product:
+            return "Product not found", 404
+
+        if request.method == "POST":
+            cur.execute("""
+                UPDATE products
+                SET name=%s, mrp=%s, price=%s, rating=%s, rating_count=%s,
+                    delivery_days=%s, description=%s,
+                    stock=%s, category=%s
+                WHERE id=%s
+            """, (
+                request.form.get("name"),
+                float(request.form.get("mrp")),
+                float(request.form.get("price")),
+                float(request.form.get("rating") or 0),
+                int(request.form.get("rating_count") or 0),
+                int(request.form.get("delivery_days") or 0),
+                request.form.get("description"),
+                int(request.form.get("stock")),
+                request.form.get("category"),
+                product_id
+            ))
+            conn.commit()
+            return redirect(url_for("admin.admin_products"))
+
+        return render_template("admin/edit_product.html", product=product)
+    finally:
+        conn.close()
+
+
+@admin.route("/products/delete/<int:product_id>")
+@admin_required
+def delete_product(product_id):
+    conn = get_db()
+    if not conn:
+        return "Database unavailable", 500
+
+    try:
+        cur = conn.cursor()
+        cur.execute("DELETE FROM products WHERE id = %s", (product_id,))
+        conn.commit()
+    finally:
+        conn.close()
+
+    return redirect(url_for("admin.admin_products"))
+
 # -----------------------------
 # ORDERS
 # -----------------------------
@@ -235,9 +292,7 @@ def view_invoice(order_id):
     return render_template("admin/invoice.html", order=order)
 
 
-# -----------------------------
-# PRODUCTS (JSON — UNCHANGED)
-# -----------------------------
+
 
 @admin.route("/orders/update/<int:order_id>", methods=["POST"])
 @admin_required
@@ -265,3 +320,168 @@ def update_order_status(order_id):
         conn.close()
 
     return redirect(url_for("admin.order_detail", order_id=order_id))
+
+def load_products():
+    conn = get_db()
+    if not conn:
+        return []
+
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM products ORDER BY id DESC")
+        products = cur.fetchall()
+
+        for p in products:
+            p["images"] = p["images"] or []
+            p["badges"] = p["badges"] or []
+
+        return products
+    finally:
+        conn.close()
+
+
+def load_product(product_id):
+    conn = get_db()
+    if not conn:
+        return None
+
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM products WHERE id = %s", (product_id,))
+        product = cur.fetchone()
+        if product:
+            product["images"] = product["images"] or []
+            product["badges"] = product["badges"] or []
+        return product
+    finally:
+        conn.close()
+
+
+def get_categories():
+    conn = get_db()
+    if not conn:
+        return []
+
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT DISTINCT category FROM products WHERE category IS NOT NULL")
+        return sorted([row["category"] for row in cur.fetchall()])
+    finally:
+        conn.close()
+# -----------------------------
+# PRODUCTS (DATABASE)
+# -----------------------------
+@admin.route("/products")
+@admin_required
+def admin_products():
+    products = load_products()
+    return render_template("admin/products.html", products=products)
+
+
+@admin.route("/products/add", methods=["GET", "POST"])
+@admin_required
+def add_product():
+    if request.method == "POST":
+        conn = get_db()
+        if not conn:
+            return "Database unavailable", 500
+
+        try:
+            cur = conn.cursor()
+
+            images = request.files.getlist("images")
+            if len(images) != 5:
+                return render_template(
+                    "admin/add_product.html",
+                    error="Exactly 5 images required"
+                )
+
+            image_names = []
+            for img in images:
+                filename = secure_filename(img.filename)
+                img.save(os.path.join("app/static/images", filename))
+                image_names.append(filename)
+
+            cur.execute("""
+                INSERT INTO products
+                (name, mrp, price, rating, rating_count, delivery_days,
+                 description, stock, category, badges, images, created_at)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            """, (
+                request.form["name"],
+                request.form["mrp"],
+                request.form["price"],
+                request.form.get("rating", 0),
+                request.form.get("rating_count", 0),
+                request.form.get("delivery_days", 0),
+                request.form["description"],
+                request.form["stock"],
+                request.form["category"],
+                json.loads(request.form.get("badges", "[]")),
+                json.dumps(image_names),
+                datetime.now()
+            ))
+
+            conn.commit()
+            return redirect(url_for("admin.admin_products"))
+        finally:
+            conn.close()
+
+    return render_template("admin/add_product.html")
+
+
+@admin.route("/products/edit/<int:product_id>", methods=["GET", "POST"])
+@admin_required
+def edit_product(product_id):
+    product = load_product(product_id)
+    if not product:
+        return "Product not found", 404
+
+    if request.method == "POST":
+        conn = get_db()
+        try:
+            cur = conn.cursor()
+            cur.execute("""
+                UPDATE products SET
+                name=%s, mrp=%s, price=%s, rating=%s, rating_count=%s,
+                delivery_days=%s, description=%s, stock=%s,
+                category=%s, badges=%s
+                WHERE id=%s
+            """, (
+                request.form["name"],
+                request.form["mrp"],
+                request.form["price"],
+                request.form.get("rating", 0),
+                request.form.get("rating_count", 0),
+                request.form.get("delivery_days", 0),
+                request.form["description"],
+                request.form["stock"],
+                request.form["category"],
+                json.loads(request.form.get("badges", "[]")),
+                product_id
+            ))
+            conn.commit()
+        finally:
+            conn.close()
+
+        return redirect(url_for("admin.admin_products"))
+
+    return render_template(
+        "admin/edit_product.html",
+        product=product,
+        categories=get_categories()
+    )
+
+
+@admin.route("/products/delete/<int:product_id>")
+@admin_required
+def delete_product(product_id):
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("DELETE FROM products WHERE id=%s", (product_id,))
+        conn.commit()
+    finally:
+        conn.close()
+
+    return redirect(url_for("admin.admin_products"))
