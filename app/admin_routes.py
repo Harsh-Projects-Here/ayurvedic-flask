@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session
 import json, os, uuid
 from functools import wraps
-from app.config import ADMIN_USERNAME, ADMIN_PASSWORD, UPLOAD_FOLDER
+from app.config import ADMIN_USERNAME, ADMIN_PASSWORD
 from datetime import datetime
 from werkzeug.utils import secure_filename
 from urllib.parse import quote
@@ -12,7 +12,6 @@ admin = Blueprint("admin", __name__, url_prefix="/admin")
 # -----------------------------
 # FILE CONSTANTS
 # -----------------------------
-ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "webp"}
 
 # -----------------------------
 # AUTH
@@ -29,31 +28,6 @@ def admin_required(view):
 # -----------------------------
 # PRODUCT HELPERS (JSON)
 # -----------------------------
-def _allowed_file(filename):
-    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
-def _ensure_upload_folder():
-    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
-
-
-
-
-
-
-
-def get_categories():
-    conn = get_db()
-    if not conn:
-        return []
-
-    try:
-        cur = conn.cursor()
-        cur.execute("SELECT DISTINCT category FROM products WHERE category IS NOT NULL")
-        return sorted([row["category"] for row in cur.fetchall()])
-    finally:
-        conn.close()
 
 
 
@@ -264,156 +238,6 @@ def view_invoice(order_id):
 # -----------------------------
 # PRODUCTS (JSON — UNCHANGED)
 # -----------------------------
-@admin.route("/products")
-@admin_required
-def admin_products():
-    conn = get_db()
-    if not conn:
-        return render_template("admin/products.html", products=[])
-
-    try:
-        cur = conn.cursor()
-        cur.execute("SELECT * FROM products ORDER BY id DESC")
-        products = cur.fetchall()
-    finally:
-        conn.close()
-
-    return render_template("admin/products.html", products=products)
-
-
-
-@admin.route("/products/add", methods=["GET", "POST"])
-@admin_required
-def add_product():
-    if request.method == "POST":
-        _ensure_upload_folder()
-
-        files = request.files.getlist("images")
-        if len(files) != 5:
-            return render_template(
-                "admin/add_product.html",
-                error="Upload exactly 5 images",
-                categories=get_categories()
-            )
-
-        images = []
-        for f in files:
-            if not _allowed_file(f.filename):
-                return render_template(
-                    "admin/add_product.html",
-                    error="Invalid image format",
-                    categories=get_categories()
-                )
-            name = f"{uuid.uuid4().hex}_{secure_filename(f.filename)}"
-            f.save(os.path.join(UPLOAD_FOLDER, name))
-            images.append(name)
-
-        conn = get_db()
-        if not conn:
-            return "Database unavailable", 500
-
-        try:
-            cur = conn.cursor()
-            cur.execute("""
-                INSERT INTO products
-                (name, mrp, price, rating, rating_count, delivery_days,
-                 description, stock, category, badges, images, created_at)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
-            """, (
-                request.form.get("name"),
-                float(request.form.get("mrp")),
-                float(request.form.get("price")),
-                float(request.form.get("rating") or 0),
-                int(request.form.get("rating_count") or 0),
-                int(request.form.get("delivery_days") or 0),
-                request.form.get("description"),
-                int(request.form.get("stock")),
-                request.form.get("category"),
-                json.dumps([]),              # badges ✅
-                json.dumps(images),          # images ✅ FIXED
-                datetime.now()
-            ))
-            conn.commit()
-        finally:
-            conn.close()
-
-        return redirect(url_for("admin.admin_products"))
-
-    return render_template(
-        "admin/add_product.html",
-        categories=get_categories()
-    )
-
-
-@admin.route("/products/edit/<int:product_id>", methods=["GET", "POST"])
-@admin_required
-def edit_product(product_id):
-    conn = get_db()
-    if not conn:
-        return "Database unavailable", 500
-
-    try:
-        cur = conn.cursor()
-        cur.execute("SELECT * FROM products WHERE id = %s", (product_id,))
-        product = cur.fetchone()
-
-        if not product:
-            return "Product not found", 404
-
-        if request.method == "POST":
-            raw_badges = request.form.get("badges", "").strip()
-            try:
-                badges = json.loads(raw_badges) if raw_badges else []
-            except json.JSONDecodeError:
-                badges = []
-
-            cur.execute("""
-                UPDATE products
-                SET name=%s, mrp=%s, price=%s, rating=%s, rating_count=%s,
-                    delivery_days=%s, badges=%s, description=%s,
-                    stock=%s, category=%s
-                WHERE id=%s
-            """, (
-                request.form.get("name"),
-                float(request.form.get("mrp")),
-                float(request.form.get("price")),
-                float(request.form.get("rating") or 0),
-                int(request.form.get("rating_count") or 0),
-                int(request.form.get("delivery_days") or 0),
-                badges,
-                request.form.get("description"),
-                int(request.form.get("stock")),
-                request.form.get("category"),
-                product_id
-            ))
-            conn.commit()
-            return redirect(url_for("admin.admin_products"))
-
-        return render_template(
-            "admin/edit_product.html",
-            product=product,
-            categories=get_categories()
-        )
-    finally:
-        conn.close()
-
-@admin.route("/products/delete/<int:product_id>")
-@admin_required
-def delete_product(product_id):
-    conn = get_db()
-    if not conn:
-        return "Database unavailable", 500
-
-    try:
-        cur = conn.cursor()
-        cur.execute("DELETE FROM products WHERE id = %s", (product_id,))
-        conn.commit()
-    finally:
-        conn.close()
-
-    return redirect(url_for("admin.admin_products"))
-
-
 
 @admin.route("/orders/update/<int:order_id>", methods=["POST"])
 @admin_required

@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "name": "Dr Prosto Tablets",
+    "mrp": 999,
+    "price": 699,
+    "rating": 4.8,
+    "rating_count": 1320,
+    "delivery_days": 5,
+    "stock": 50,
+    "category": "men health",
+    "badges": ["Bestseller"],
+    "images": [
+      "DrProstofront.webp",
+      "DrProstobackone.webp",
+      "DrProstobacktwo.webp",
+      "DrProstowithbox.jpg",
+      "DrProstoinside.webp"
+    ],
+    "description": "Ayurvedic formulation for prostate health"
+  }
+]

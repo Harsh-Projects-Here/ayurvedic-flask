@@ -27,6 +27,9 @@ def init_db():
 
     cur = conn.cursor()
 
+    # -----------------------------
+    # USERS
+    # -----------------------------
     cur.execute("""
     CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -36,6 +39,9 @@ def init_db():
     );
     """)
 
+    # -----------------------------
+    # ORDERS
+    # -----------------------------
     cur.execute("""
     CREATE TABLE IF NOT EXISTS orders (
         id SERIAL PRIMARY KEY,
@@ -54,6 +60,9 @@ def init_db():
     );
     """)
 
+    # -----------------------------
+    # ORDER ITEMS
+    # -----------------------------
     cur.execute("""
     CREATE TABLE IF NOT EXISTS order_items (
         id SERIAL PRIMARY KEY,
@@ -64,24 +73,6 @@ def init_db():
         quantity INTEGER NOT NULL
     );
     """)
-    cur.execute("""
-CREATE TABLE IF NOT EXISTS products (
-    id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL,
-    mrp NUMERIC NOT NULL,
-    price NUMERIC NOT NULL,
-    rating NUMERIC DEFAULT 0,
-    rating_count INTEGER DEFAULT 0,
-    delivery_days INTEGER DEFAULT 0,
-    description TEXT,
-    stock INTEGER NOT NULL,
-    category TEXT,
-    badges JSONB DEFAULT '[]',
-    images JSONB NOT NULL,
-    created_at TIMESTAMP
-);
-""")
-
 
     conn.commit()
     conn.close()

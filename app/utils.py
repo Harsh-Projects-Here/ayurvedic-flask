@@ -1,13 +1,11 @@
-from app.database import get_db
+import json
+import os
+
+DATA_FILE = os.path.join("data", "products.json")
 
 def load_products():
-    conn = get_db()
-    if not conn:
+    if not os.path.exists(DATA_FILE):
         return []
 
-    try:
-        cur = conn.cursor()
-        cur.execute("SELECT * FROM products ORDER BY id DESC")
-        return cur.fetchall()
-    finally:
-        conn.close()
+    with open(DATA_FILE, "r", encoding="utf-8") as f:
+        return json.load(f)
