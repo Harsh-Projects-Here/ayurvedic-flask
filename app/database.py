@@ -40,6 +40,27 @@ def init_db():
     """)
 
     # -----------------------------
+    # PRODUCTS  ✅ RESTORED
+    # -----------------------------
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS products (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        mrp NUMERIC NOT NULL,
+        price NUMERIC NOT NULL,
+        rating NUMERIC DEFAULT 0,
+        rating_count INTEGER DEFAULT 0,
+        delivery_days INTEGER DEFAULT 0,
+        description TEXT,
+        stock INTEGER NOT NULL,
+        category TEXT,
+        badges JSONB DEFAULT '[]',
+        images JSONB NOT NULL,
+        created_at TIMESTAMP
+    );
+    """)
+
+    # -----------------------------
     # ORDERS
     # -----------------------------
     cur.execute("""

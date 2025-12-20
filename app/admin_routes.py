@@ -332,18 +332,22 @@ def add_product():
 
         try:
             cur = conn.cursor()
-            images = request.files.getlist("images")
 
+            images = request.files.getlist("images")
             if len(images) != 5:
                 return render_template(
                     "admin/add_product.html",
                     error="Exactly 5 images required"
                 )
 
+            # ✅ FIX: ensure upload directory exists
+            upload_dir = os.path.join("app", "static", "images")
+            os.makedirs(upload_dir, exist_ok=True)
+
             image_names = []
             for img in images:
                 filename = secure_filename(img.filename)
-                img.save(os.path.join("app/static/images", filename))
+                img.save(os.path.join(upload_dir, filename))
                 image_names.append(filename)
 
             cur.execute("""
@@ -368,11 +372,11 @@ def add_product():
 
             conn.commit()
             return redirect(url_for("admin.admin_products"))
+
         finally:
             conn.close()
 
     return render_template("admin/add_product.html")
-
 
 @admin.route("/products/edit/<int:product_id>", methods=["GET", "POST"])
 @admin_required
