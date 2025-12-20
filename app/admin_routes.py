@@ -329,8 +329,8 @@ def add_product():
                 request.form.get("description"),
                 int(request.form.get("stock")),
                 request.form.get("category"),
-                [],
-                images,
+                json.dumps([]),              # badges ✅
+                json.dumps(images),          # images ✅ FIXED
                 datetime.now()
             ))
             conn.commit()
@@ -343,7 +343,6 @@ def add_product():
         "admin/add_product.html",
         categories=get_categories()
     )
-
 
 
 @admin.route("/products/edit/<int:product_id>", methods=["GET", "POST"])
