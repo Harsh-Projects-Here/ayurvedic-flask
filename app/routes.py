@@ -1,5 +1,4 @@
 from flask import Blueprint, render_template, session, redirect, url_for, request, jsonify
-from app.utils import load_products
 from app.database import get_db
 from datetime import datetime
 from functools import wraps
@@ -22,6 +21,25 @@ def login_required(view):
 def _get_product_image(product):
     images = product.get("images") or []
     return images[0] if images else "default.png"
+
+
+def load_products():
+    conn = get_db()
+    if not conn:
+        return []
+
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM products ORDER BY id DESC")
+        products = cur.fetchall()
+
+        for p in products:
+            p["images"] = p["images"] or []
+            p["badges"] = p["badges"] or []
+
+        return products
+    finally:
+        conn.close()
 
 
 # -----------------------
@@ -138,11 +156,9 @@ def update_account():
 def home():
     products = load_products()
 
-    for p in products:
-        category = p.get("category", "Other")
-        p["category"] = category.strip().lower()
-
-    categories = sorted(set(p["category"] for p in products))
+    categories = sorted(
+        set(p["category"] for p in products if p.get("category"))
+    )
 
     return render_template(
         "index.html",
