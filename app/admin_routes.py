@@ -385,7 +385,10 @@ def add_product():
                         error="All 5 image files must be selected"
                     )
 
-                ext = os.path.splitext(img.filename)[1].lower()
+                # ✅ SECURE FILENAME IMPLEMENTATION
+                safe_name = secure_filename(img.filename)
+                ext = os.path.splitext(safe_name)[1].lower()
+
                 if ext not in ALLOWED_IMAGE_EXTENSIONS:
                     return render_template(
                         "admin/add_product.html",

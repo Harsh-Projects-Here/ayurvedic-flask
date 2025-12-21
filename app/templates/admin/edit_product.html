@@ -106,6 +106,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
 
         /* Form Grid - Mobile Responsive */
@@ -125,10 +131,11 @@
             }
         }
 
-        /* Form Groups */
+        /* Form Groups with Glowing Effect */
         .form-group {
             display: flex;
             flex-direction: column;
+            position: relative;
         }
 
         label {
@@ -138,6 +145,19 @@
             font-size: 14px;
             display: flex;
             align-items: center;
+            gap: 6px;
+        }
+
+        label .label-icon {
+            font-size: 16px;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+
+        .form-group:focus-within label .label-icon {
+            opacity: 1;
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.6));
         }
 
         label .required {
@@ -146,15 +166,16 @@
             font-size: 16px;
         }
 
-        /* Input Styles */
+        /* Input Styles with Glow */
         input[type="text"],
         input[type="number"],
-        select {
+        select,
+        textarea {
             padding: 11px 14px;
             border: 1px solid #d1d5db;
             border-radius: 8px;
             font-size: 15px;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
             background: #ffffff;
             color: #111827;
         }
@@ -165,7 +186,8 @@
         textarea:focus {
             outline: none;
             border-color: #6366f1;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1), 0 0 20px rgba(99, 102, 241, 0.2);
+            transform: translateY(-1px);
         }
 
         input::placeholder {
@@ -181,15 +203,9 @@
         }
 
         textarea {
-            padding: 11px 14px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            font-size: 14px;
             font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
             resize: vertical;
             min-height: 140px;
-            transition: all 0.2s;
-            background: #ffffff;
             line-height: 1.6;
             white-space: pre-wrap;
         }
@@ -227,6 +243,7 @@
 
         .add-badge-btn:hover {
             background: #4f46e5;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
         }
 
         .add-badge-btn:active {
@@ -250,6 +267,12 @@
             font-size: 13px;
             font-weight: 500;
             border: 1px solid #e5e7eb;
+            transition: all 0.2s;
+        }
+
+        .badge-item:hover {
+            border-color: #6366f1;
+            background: #eef2ff;
         }
 
         .remove-badge {
@@ -324,6 +347,8 @@
 
         .submit-btn:hover {
             background: #4f46e5;
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+            transform: translateY(-2px);
         }
 
         .submit-btn:active {
@@ -342,6 +367,12 @@
             display: flex;
             align-items: start;
             gap: 10px;
+        }
+
+        .info-box.warning {
+            background: #fef3c7;
+            border: 1px solid #fde68a;
+            color: #92400e;
         }
 
         .info-icon {
@@ -413,6 +444,12 @@
                 grid-template-columns: repeat(5, 1fr);
             }
         }
+
+        /* Accessibility - Focus visible */
+        *:focus-visible {
+            outline: 2px solid #6366f1;
+            outline-offset: 2px;
+        }
     </style>
 </head>
 <body>
@@ -449,22 +486,34 @@
 
                     <div class="form-grid">
                         <div class="form-group full-width">
-                            <label>Product Name<span class="required">*</span></label>
+                            <label>
+                                <span class="label-icon">✏️</span>
+                                Product Name<span class="required">*</span>
+                            </label>
                             <input type="text" name="name" value="{{ product.name }}" required>
                         </div>
 
                         <div class="form-group">
-                            <label>MRP (₹)<span class="required">*</span></label>
+                            <label>
+                                <span class="label-icon">💰</span>
+                                MRP (₹)<span class="required">*</span>
+                            </label>
                             <input type="number" step="0.01" name="mrp" value="{{ product.mrp }}" required>
                         </div>
 
                         <div class="form-group">
-                            <label>Selling Price (₹)<span class="required">*</span></label>
+                            <label>
+                                <span class="label-icon">💵</span>
+                                Selling Price (₹)<span class="required">*</span>
+                            </label>
                             <input type="number" step="0.01" name="price" value="{{ product.price }}" required>
                         </div>
 
                         <div class="form-group">
-                            <label>Category<span class="required">*</span></label>
+                            <label>
+                                <span class="label-icon">📂</span>
+                                Category<span class="required">*</span>
+                            </label>
                             <select name="category" required>
                                 {% for c in categories %}
                                     <option value="{{ c }}" {% if product.category == c %}selected{% endif %}>
@@ -475,7 +524,10 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Stock Quantity<span class="required">*</span></label>
+                            <label>
+                                <span class="label-icon">📊</span>
+                                Stock Quantity<span class="required">*</span>
+                            </label>
                             <input type="number" name="stock" value="{{ product.stock }}" required>
                         </div>
                     </div>
@@ -490,46 +542,70 @@
 
                     <div class="form-grid">
                         <div class="form-group">
-                            <label>Rating (0–5)</label>
+                            <label>
+                                <span class="label-icon">⭐</span>
+                                Rating (0–5)
+                            </label>
                             <input type="number" step="0.1" min="0" max="5" name="rating" value="{{ product.rating }}">
                             <span class="helper-text">Product rating out of 5</span>
                         </div>
 
                         <div class="form-group">
-                            <label>Number of Ratings</label>
+                            <label>
+                                <span class="label-icon">📝</span>
+                                Number of Ratings
+                            </label>
                             <input type="number" name="rating_count" value="{{ product.rating_count }}">
                             <span class="helper-text">Total review count</span>
                         </div>
 
                         <div class="form-group">
-                            <label>Delivery Time (days)</label>
+                            <label>
+                                <span class="label-icon">🚚</span>
+                                Delivery Time (days)
+                            </label>
                             <input type="number" name="delivery_days" value="{{ product.delivery_days }}">
                             <span class="helper-text">Estimated delivery time</span>
                         </div>
 
                         <div class="form-group full-width">
-                            <label>Product Description<span class="required">*</span></label>
+                            <label>
+                                <span class="label-icon">📄</span>
+                                Product Description<span class="required">*</span>
+                            </label>
                             <textarea name="description" required>{{ product.description }}</textarea>
                             <span class="helper-text">Formatting is preserved (line breaks, spacing)</span>
                         </div>
 
                         <div class="form-group full-width">
-                            <label>Ingredients</label>
+                            <label>
+                                <span class="label-icon">🧪</span>
+                                Ingredients
+                            </label>
                             <textarea name="ingredients">{{ product.ingredients }}</textarea>
                         </div>
 
                         <div class="form-group full-width">
-                            <label>Nutrition</label>
+                            <label>
+                                <span class="label-icon">🥗</span>
+                                Nutrition
+                            </label>
                             <textarea name="nutrition">{{ product.nutrition }}</textarea>
                         </div>
 
                         <div class="form-group full-width">
-                            <label>Dosage</label>
+                            <label>
+                                <span class="label-icon">💊</span>
+                                Dosage
+                            </label>
                             <textarea name="dosage">{{ product.dosage }}</textarea>
                         </div>
 
                         <div class="form-group full-width">
-                            <label>Additional Information</label>
+                            <label>
+                                <span class="label-icon">ℹ️</span>
+                                Additional Information
+                            </label>
                             <textarea name="additional_info">{{ product.additional_info }}</textarea>
                         </div>
                     </div>
@@ -544,7 +620,10 @@
 
                     <div class="form-grid">
                         <div class="form-group full-width">
-                            <label>Edit Custom Badges</label>
+                            <label>
+                                <span class="label-icon">🎯</span>
+                                Edit Custom Badges
+                            </label>
                             <div class="badge-input-container">
                                 <input type="text" class="badge-input" id="badgeInput" placeholder="e.g., Bestseller, 20% OFF">
                                 <button type="button" class="add-badge-btn" onclick="addBadge()">Add</button>
@@ -563,14 +642,28 @@
                         </div>
                     </div>
 
+                    <!-- WARNING BOX FOR IMAGES -->
+                    <div class="info-box warning">
+                        <span class="info-icon">⚠️</span>
+                        <div>
+                            <strong>Product images are temporary.</strong><br>
+                            Images will disappear after every redeployment and must be re-uploaded manually.
+                        </div>
+                    </div>
+
                     <div class="form-grid">
                         <div class="form-group full-width">
-                            <label>Current Images ({{ product.images|length }} images)</label>
+                            <label>
+                                <span class="label-icon">🖼️</span>
+                                Current Images ({{ product.images|length if product.images else 0 }} images)
+                            </label>
                             <div class="existing-images">
                                 {% for img in product.images %}
                                     <div class="image-wrapper">
                                         <span class="image-number">#{{ loop.index }}</span>
-                                        <img src="{{ url_for('static', filename='images/' ~ img) }}" alt="Product image {{ loop.index }}">
+                                        <img src="{{ url_for('static', filename='images/' ~ img) }}" 
+                                             alt="Product image {{ loop.index }}"
+                                             onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/default.png') }}';">
                                     </div>
                                 {% endfor %}
                             </div>
