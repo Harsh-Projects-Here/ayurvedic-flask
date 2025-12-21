@@ -452,6 +452,36 @@ def edit_product(product_id):
         conn = get_db()
         try:
             cur = conn.cursor()
+
+            # 🔧 A. Read uploaded images
+            new_images = request.files.getlist("images")
+
+            # 🔧 B. Default: keep existing images
+            image_names = product["images"]
+
+            # 🔧 C. If admin uploads images → FORCE exactly 5
+            if new_images and new_images[0].filename:
+                if len(new_images) != 5:
+                    return "Exactly 5 images are required", 400
+
+                # 🔧 D. Save new images (replace old ones)
+                upload_dir = os.path.join("app", "static", "images")
+                os.makedirs(upload_dir, exist_ok=True)
+
+                image_names = []
+
+                for img in new_images:
+                    safe_name = secure_filename(img.filename)
+                    ext = os.path.splitext(safe_name)[1].lower()
+
+                    if ext not in ALLOWED_IMAGE_EXTENSIONS:
+                        return "Invalid image type", 400
+
+                    filename = f"{uuid.uuid4().hex}{ext}"
+                    img.save(os.path.join(upload_dir, filename))
+                    image_names.append(filename)
+
+            # 4️⃣ UPDATE SQL QUERY (with images column)
             cur.execute("""
                 UPDATE products SET
                 name=%s,
@@ -467,7 +497,8 @@ def edit_product(product_id):
                 additional_info=%s,
                 stock=%s,
                 category=%s,
-                badges=%s
+                badges=%s,
+                images=%s
                 WHERE id=%s
             """, (
                 request.form["name"],
@@ -484,6 +515,7 @@ def edit_product(product_id):
                 request.form["stock"],
                 request.form["category"],
                 json.loads(request.form.get("badges") or "[]"),
+                json.dumps(image_names),
                 product_id
             ))
             conn.commit()

@@ -190,6 +190,29 @@
             transform: translateY(-1px);
         }
 
+        /* File Input Styles */
+        input[type="file"] {
+            padding: 11px 14px;
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: #f9fafb;
+            color: #374151;
+            cursor: pointer;
+        }
+
+        input[type="file"]:hover {
+            border-color: #6366f1;
+            background: #ffffff;
+        }
+
+        input[type="file"]:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
         input::placeholder {
             color: #9ca3af;
         }
@@ -667,7 +690,43 @@
                                     </div>
                                 {% endfor %}
                             </div>
-                            <span class="helper-text">Current product images displayed above. Contact support to modify images.</span>
+                            <span class="helper-text">Current product images displayed above.</span>
+                        </div>
+                    </div>
+
+                    <!-- Replace Images Section -->
+                    <div class="section-header">
+                        <div class="section-title">
+                            <span class="section-icon">🔁</span>
+                            Replace Product Images
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label>
+                                <span class="label-icon">📤</span>
+                                Upload New Images (Exactly 5)
+                            </label>
+
+                            <input
+                                type="file"
+                                name="images"
+                                accept="image/*"
+                                multiple
+                                onchange="validateReplaceImages(this)"
+                            >
+
+                            <span class="helper-text">
+                                Uploading images here will <strong>delete all existing images</strong> and replace them.
+                                You must select exactly 5 images.
+                            </span>
+
+                            <div id="replaceImageError"
+                                 class="helper-text"
+                                 style="color:#dc2626; display:none;">
+                                ❌ Please select exactly 5 images.
+                            </div>
                         </div>
                     </div>
 
@@ -736,6 +795,23 @@
                 this.style.height = Math.max(140, this.scrollHeight) + 'px';
             });
         });
+
+        // Validate image replacement (exactly 5 images required)
+        function validateReplaceImages(input) {
+            const error = document.getElementById("replaceImageError");
+
+            if (!input.files || input.files.length === 0) {
+                error.style.display = "none";
+                return;
+            }
+
+            if (input.files.length !== 5) {
+                error.style.display = "block";
+                input.value = "";
+            } else {
+                error.style.display = "none";
+            }
+        }
     </script>
 </body>
 </html>
