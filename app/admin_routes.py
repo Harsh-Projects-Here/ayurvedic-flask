@@ -12,6 +12,7 @@ admin = Blueprint("admin", __name__, url_prefix="/admin")
 # -----------------------------
 # FILE CONSTANTS
 # -----------------------------
+ALLOWED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 
 # -----------------------------
 # AUTH
@@ -369,18 +370,38 @@ def add_product():
             if len(images) != 5:
                 return render_template(
                     "admin/add_product.html",
-                    error="Exactly 5 images required"
+                    error="Exactly 5 images are required"
                 )
 
-            # ✅ FIX: ensure upload directory exists
             upload_dir = os.path.join("app", "static", "images")
             os.makedirs(upload_dir, exist_ok=True)
 
             image_names = []
+
             for img in images:
-                filename = secure_filename(img.filename)
+                if not img.filename:
+                    return render_template(
+                        "admin/add_product.html",
+                        error="All 5 image files must be selected"
+                    )
+
+                ext = os.path.splitext(img.filename)[1].lower()
+                if ext not in ALLOWED_IMAGE_EXTENSIONS:
+                    return render_template(
+                        "admin/add_product.html",
+                        error="Only JPG, JPEG, PNG, and WEBP images are allowed"
+                    )
+
+                filename = f"{uuid.uuid4().hex}{ext}"
                 img.save(os.path.join(upload_dir, filename))
                 image_names.append(filename)
+
+            # 🔒 FINAL SAFETY CHECK
+            if len(image_names) != 5:
+                return render_template(
+                    "admin/add_product.html",
+                    error="Exactly 5 valid images are required"
+                )
 
             cur.execute("""
                 INSERT INTO products
@@ -414,6 +435,7 @@ def add_product():
             conn.close()
 
     return render_template("admin/add_product.html")
+
 
 
 @admin.route("/products/edit/<int:product_id>", methods=["GET", "POST"])

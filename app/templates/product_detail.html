@@ -1171,7 +1171,8 @@
                 <img id="mainImage"
                      src="{{ url_for('static', filename='images/' ~ main_img) }}"
                      class="main-image"
-                     alt="{{ product.name }}">
+                     alt="{{ product.name }}"
+                     onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/default.png') }}';">
 
                 <!-- Navigation Arrows -->
                 <button class="nav-arrow nav-arrow-left" 
@@ -1193,7 +1194,9 @@
                 </button>
 
                 <!-- Image Counter -->
-                <div class="image-counter" id="imageCounter">1 / {{ product.images|length }}</div>
+                <div class="image-counter" id="imageCounter">
+                    1 / {{ product.images|length if product.images else 1 }}
+                </div>
             </div>
 
             <!-- Thumbnails -->
@@ -1205,7 +1208,8 @@
                      onclick="changeImage(this)"
                      alt="Product view {{ loop.index }}"
                      tabindex="0"
-                     role="button">
+                     role="button"
+                     onerror="this.remove();">
                 {% endfor %}
             </div>
         </div>
@@ -1338,7 +1342,9 @@
 <script>
     // Image gallery state
     let currentImageIndex = 0;
-    const images = document.querySelectorAll('.thumb-row img');
+    const images = Array.from(document.querySelectorAll('.thumb-row img'))
+        .filter(img => img.complete && img.naturalWidth > 0);
+    
     const totalImages = images.length;
 
     // Change image and update UI
