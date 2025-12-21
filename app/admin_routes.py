@@ -286,10 +286,15 @@ def load_products():
             elif p.get("badges") is None:
                 p["badges"] = []
 
+            # Fix text fields (recommended for future compatibility)
+            for field in ["ingredients", "nutrition", "dosage", "additional_info"]:
+                p[field] = p.get(field) or ""
+
         return products
 
     finally:
         conn.close()
+
 
 def load_product(product_id):
     conn = get_db()
@@ -300,10 +305,28 @@ def load_product(product_id):
         cur = conn.cursor()
         cur.execute("SELECT * FROM products WHERE id = %s", (product_id,))
         product = cur.fetchone()
-        if product:
-            product["images"] = product["images"] or []
-            product["badges"] = product["badges"] or []
+
+        if not product:
+            return None
+
+        # Normalize images
+        if isinstance(product.get("images"), str):
+            product["images"] = json.loads(product["images"])
+        else:
+            product["images"] = product.get("images") or []
+
+        # Normalize badges
+        if isinstance(product.get("badges"), str):
+            product["badges"] = json.loads(product["badges"])
+        else:
+            product["badges"] = product.get("badges") or []
+
+        # Normalize text fields (MANDATORY)
+        for field in ["ingredients", "nutrition", "dosage", "additional_info"]:
+            product[field] = product.get(field) or ""
+
         return product
+
     finally:
         conn.close()
 
@@ -362,8 +385,9 @@ def add_product():
             cur.execute("""
                 INSERT INTO products
                 (name, mrp, price, rating, rating_count, delivery_days,
-                 description, stock, category, badges, images, created_at)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                 description, ingredients, nutrition, dosage, additional_info,
+                 stock, category, badges, images, created_at)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
             """, (
                 request.form["name"],
                 request.form["mrp"],
@@ -372,6 +396,10 @@ def add_product():
                 request.form.get("rating_count", 0),
                 request.form.get("delivery_days", 0),
                 request.form["description"],
+                request.form.get("ingredients", ""),
+                request.form.get("nutrition", ""),
+                request.form.get("dosage", ""),
+                request.form.get("additional_info", ""),
                 request.form["stock"],
                 request.form["category"],
                 json.loads(request.form.get("badges") or "[]"),
@@ -387,6 +415,7 @@ def add_product():
 
     return render_template("admin/add_product.html")
 
+
 @admin.route("/products/edit/<int:product_id>", methods=["GET", "POST"])
 @admin_required
 def edit_product(product_id):
@@ -400,9 +429,20 @@ def edit_product(product_id):
             cur = conn.cursor()
             cur.execute("""
                 UPDATE products SET
-                name=%s, mrp=%s, price=%s, rating=%s, rating_count=%s,
-                delivery_days=%s, description=%s, stock=%s,
-                category=%s, badges=%s
+                name=%s,
+                mrp=%s,
+                price=%s,
+                rating=%s,
+                rating_count=%s,
+                delivery_days=%s,
+                description=%s,
+                ingredients=%s,
+                nutrition=%s,
+                dosage=%s,
+                additional_info=%s,
+                stock=%s,
+                category=%s,
+                badges=%s
                 WHERE id=%s
             """, (
                 request.form["name"],
@@ -412,6 +452,10 @@ def edit_product(product_id):
                 request.form.get("rating_count", 0),
                 request.form.get("delivery_days", 0),
                 request.form["description"],
+                request.form.get("ingredients", ""),
+                request.form.get("nutrition", ""),
+                request.form.get("dosage", ""),
+                request.form.get("additional_info", ""),
                 request.form["stock"],
                 request.form["category"],
                 json.loads(request.form.get("badges") or "[]"),

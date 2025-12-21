@@ -1,6 +1,7 @@
 import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
+from datetime import datetime
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
@@ -40,7 +41,7 @@ def init_db():
     """)
 
     # -----------------------------
-    # PRODUCTS  ✅ RESTORED
+    # PRODUCTS  ✅ FULLY FIXED
     # -----------------------------
     cur.execute("""
     CREATE TABLE IF NOT EXISTS products (
@@ -52,6 +53,10 @@ def init_db():
         rating_count INTEGER DEFAULT 0,
         delivery_days INTEGER DEFAULT 0,
         description TEXT,
+        ingredients TEXT,
+        nutrition TEXT,
+        dosage TEXT,
+        additional_info TEXT,
         stock INTEGER NOT NULL,
         category TEXT,
         badges JSONB DEFAULT '[]',
@@ -97,3 +102,5 @@ def init_db():
 
     conn.commit()
     conn.close()
+
+    print("Database initialized successfully")

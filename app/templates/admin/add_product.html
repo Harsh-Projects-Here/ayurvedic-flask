@@ -520,16 +520,28 @@
 
                         <div class="form-group full-width">
                             <label>Product Description<span class="required">*</span></label>
-                            <textarea name="description" required placeholder="Enter detailed product description...
-
-Key Features:
-• Feature 1
-• Feature 2
-
-Benefits:
-1. Benefit one
-2. Benefit two"></textarea>
+                            <textarea name="description" required placeholder="Main product overview..."></textarea>
                             <span class="helper-text">Formatting is preserved (line breaks, spacing)</span>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label>Ingredients</label>
+                            <textarea name="ingredients" placeholder="List of ingredients..."></textarea>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label>Nutrition</label>
+                            <textarea name="nutrition" placeholder="Nutritional information..."></textarea>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label>Dosage</label>
+                            <textarea name="dosage" placeholder="How to consume this product..."></textarea>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label>Additional Information</label>
+                            <textarea name="additional_info" placeholder="Warnings, storage, extra notes..."></textarea>
                         </div>
                     </div>
 
@@ -644,11 +656,12 @@ Benefits:
             }
         });
 
-        // Auto-resize textarea
-        const textarea = document.querySelector('textarea[name="description"]');
-        textarea.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = Math.max(140, this.scrollHeight) + 'px';
+        // Auto-resize all textareas
+        document.querySelectorAll('textarea').forEach(textarea => {
+            textarea.addEventListener('input', function () {
+                this.style.height = 'auto';
+                this.style.height = Math.max(140, this.scrollHeight) + 'px';
+            });
         });
     </script>
 </body>

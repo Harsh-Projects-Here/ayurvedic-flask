@@ -512,6 +512,26 @@
                             <textarea name="description" required>{{ product.description }}</textarea>
                             <span class="helper-text">Formatting is preserved (line breaks, spacing)</span>
                         </div>
+
+                        <div class="form-group full-width">
+                            <label>Ingredients</label>
+                            <textarea name="ingredients">{{ product.ingredients }}</textarea>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label>Nutrition</label>
+                            <textarea name="nutrition">{{ product.nutrition }}</textarea>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label>Dosage</label>
+                            <textarea name="dosage">{{ product.dosage }}</textarea>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label>Additional Information</label>
+                            <textarea name="additional_info">{{ product.additional_info }}</textarea>
+                        </div>
                     </div>
 
                     <!-- Badges -->
@@ -573,7 +593,6 @@
         // Display existing badges on page load
         window.onload = function() {
             updateBadgeDisplay();
-            autoResizeTextarea();
         };
 
         function addBadge() {
@@ -614,17 +633,16 @@
             }
         });
 
-        // Auto-resize textarea
-        function autoResizeTextarea() {
-            const textarea = document.querySelector('textarea[name="description"]');
+        // Auto-resize all textareas
+        document.querySelectorAll('textarea').forEach(textarea => {
             textarea.style.height = 'auto';
             textarea.style.height = Math.max(140, textarea.scrollHeight) + 'px';
-            
-            textarea.addEventListener('input', function() {
+
+            textarea.addEventListener('input', function () {
                 this.style.height = 'auto';
                 this.style.height = Math.max(140, this.scrollHeight) + 'px';
             });
-        }
+        });
     </script>
 </body>
 </html>
