@@ -274,13 +274,22 @@ def load_products():
         products = cur.fetchall()
 
         for p in products:
-            p["images"] = p["images"] or []
-            p["badges"] = p["badges"] or []
+            # Fix images
+            if isinstance(p.get("images"), str):
+                p["images"] = json.loads(p["images"])
+            elif p.get("images") is None:
+                p["images"] = []
+
+            # Fix badges
+            if isinstance(p.get("badges"), str):
+                p["badges"] = json.loads(p["badges"])
+            elif p.get("badges") is None:
+                p["badges"] = []
 
         return products
+
     finally:
         conn.close()
-
 
 def load_product(product_id):
     conn = get_db()
@@ -365,7 +374,7 @@ def add_product():
                 request.form["description"],
                 request.form["stock"],
                 request.form["category"],
-                json.loads(request.form.get("badges", "[]")),
+                json.loads(request.form.get("badges") or "[]"),
                 json.dumps(image_names),
                 datetime.now()
             ))
@@ -405,7 +414,7 @@ def edit_product(product_id):
                 request.form["description"],
                 request.form["stock"],
                 request.form["category"],
-                json.loads(request.form.get("badges", "[]")),
+                json.loads(request.form.get("badges") or "[]"),
                 product_id
             ))
             conn.commit()
